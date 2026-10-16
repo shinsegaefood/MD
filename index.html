@@ -1269,11 +1269,11 @@ function updateCamFocus(){
 }
 async function toggleTorch(){if(!camTrack)return;try{camTorchOn=!camTorchOn;await camTrack.applyConstraints({advanced:[{torch:camTorchOn}]})}catch(_){camTorchOn=false}}
 let camPending=null,camPhotoOff=false;
-// 화면의 안내선 영역을 영상 기준 비율(0~1)로 계산 (가장자리 2% 여유)
+// 화면의 안내선 영역을 영상 기준 비율(0~1)로 계산 (여유분 없이 안내선 그대로)
 function guideRectNorm(v){
   const vw=v.videoWidth,vh=v.videoHeight,vr=v.getBoundingClientRect(),gr=document.getElementById('cam-guide').getBoundingClientRect();
   const sc=Math.max(vr.width/vw,vr.height/vh),offX=vr.left+(vr.width-vw*sc)/2,offY=vr.top+(vr.height-vh*sc)/2;
-  const mx=gr.width*0.02,my=gr.height*0.02;
+  const mx=-2,my=-2; // 여유분 없음: 흰 테두리 안쪽 선 기준으로 딱 맞춰 자름
   let x0=(gr.left-mx-offX)/sc/vw,y0=(gr.top-my-offY)/sc/vh,x1=(gr.right+mx-offX)/sc/vw,y1=(gr.bottom+my-offY)/sc/vh;
   x0=Math.max(0,x0);y0=Math.max(0,y0);x1=Math.min(1,x1);y1=Math.min(1,y1);
   if(!(x1-x0>0.1&&y1-y0>0.1))return{x:0,y:0,w:1,h:1,va:vw/vh};
