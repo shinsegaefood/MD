@@ -520,55 +520,43 @@ function rotateCanvas(src,deg){
   return c;
 }
 
-function processImage(file){
+function processImage(file,opts){
+  opts=opts||{};
   return new Promise(resolve=>{
     const reader=new FileReader();
     reader.onload=e=>{
-      // 브라우저가 EXIF 방향을 이미 적용하므로 별도 회전은 하지 않는다.
-      // 종이 자체가 돌아간 경우만 글자줄 방향으로 판별한다.
       const img=new Image();
       img.onload=()=>{
-        // 방향은 건드리지 않는다. 필요하면 편집 화면에서 직접 회전.
-        const deg=0;
-        const base=document.createElement('canvas');
-        base.width=img.width;base.height=img.height;
-        base.getContext('2d').drawImage(img,0,0);
-
-        const MAX=2400;let w=base.width,h=base.height;
+        // 방향은 브라우저가 EXIF대로 이미 맞춰 줌. 필요하면 편집 화면에서 직접 회전.
+        const MAX=2400;let w=img.width,h=img.height;
         if(w>MAX||h>MAX){const s=MAX/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s)}
-        // 1단계: 리사이즈
-        const resizeCanvas=document.createElement('canvas');
-        resizeCanvas.width=w;resizeCanvas.height=h;
-        resizeCanvas.getContext('2d').drawImage(base,0,0,w,h);
-        base.width=0;base.height=0;
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        const cx=c.getContext('2d');cx.imageSmoothingQuality='high';cx.drawImage(img,0,0,w,h);
         let blurScore=99;
-        try{blurScore=sharpnessScore(resizeCanvas)}catch(_){}
-        const resizedImg=new Image();
-        resizedImg.onload=()=>{
-          // 2단계: 문서 자동 감지 + 원근 보정 시도
-          const scannedCanvas=null; // 자동 펴기 사용 안 함 — 찍은 그대로, 필요하면 직원이 편집 화면에서 조정
-          let finalCanvas;
-          let wasScanned=false;
-          if(scannedCanvas&&scannedCanvas.width>100&&scannedCanvas.height>100){
-            finalCanvas=scannedCanvas;
-            wasScanned=true;
-          }else{
-            finalCanvas=resizeCanvas;
-          }
-          // 3단계: 대비/밝기 보정
-          applyScanEffect(finalCanvas);
-          const processed=finalCanvas.toDataURL('image/jpeg',0.92);
-          const fw=finalCanvas.width,fh=finalCanvas.height;
-          resizeCanvas.width=0;resizeCanvas.height=0;
-          if(finalCanvas!==resizeCanvas){finalCanvas.width=0;finalCanvas.height=0}
-          resolve({id:Date.now()+Math.random(),original:processed,processed,width:fw,height:fh,scanned:wasScanned,autoRot:deg,blurScore,blurry:blurScore<BLUR_THRESHOLD});
-        };
-        resizedImg.src=resizeCanvas.toDataURL('image/jpeg',0.95);
+        try{blurScore=sharpnessScore(c)}catch(_){}
+        if(opts.sharpen){try{sharpenCanvas(c,opts.sharpen)}catch(_){}}
+        applyScanEffect(c);
+        const processed=c.toDataURL('image/jpeg',0.95);
+        const fw=c.width,fh=c.height;c.width=0;c.height=0;
+        resolve({id:Date.now()+Math.random(),original:processed,processed,width:fw,height:fh,scanned:false,autoRot:0,blurScore,blurry:blurScore<BLUR_THRESHOLD});
       };
       img.src=e.target.result;
     };
     reader.readAsDataURL(file);
   });
+}
+// 글자 테두리를 살짝 또렷하게 (라플라시안 언샤프, 약하게)
+function sharpenCanvas(c,k){
+  const x=c.getContext('2d'),W=c.width,H=c.height,id=x.getImageData(0,0,W,H),d=id.data,s=new Uint8ClampedArray(d),R=W*4;
+  for(let y=1;y<H-1;y++){
+    let i=y*R+4;
+    for(let xx=1;xx<W-1;xx++,i+=4){
+      d[i]  =s[i]  +k*(4*s[i]  -s[i-4]  -s[i+4]  -s[i-R]  -s[i+R]);
+      d[i+1]=s[i+1]+k*(4*s[i+1]-s[i-3]  -s[i+5]  -s[i+1-R]-s[i+1+R]);
+      d[i+2]=s[i+2]+k*(4*s[i+2]-s[i-2]  -s[i+6]  -s[i+2-R]-s[i+2+R]);
+    }
+  }
+  x.putImageData(id,0,0);
 }
 
 // 전송 시 장수에 따라 자동 품질 조절
@@ -593,9 +581,9 @@ function sharpnessScore(srcCanvas){
 function recompressForSend(imgDataUrl, totalCount){
   return new Promise(resolve=>{
     let quality, maxPx;
-    if(totalCount<=5){quality=0.90;maxPx=2400}       // 1~5장: 고화질
-    else if(totalCount<=15){quality=0.82;maxPx=2000}  // 6~15장: 표준
-    else if(totalCount<=30){quality=0.72;maxPx=1600}  // 16~30장: 압축
+    if(totalCount<=5){quality=0.93;maxPx=2400}       // 1~5장: 고화질
+    else if(totalCount<=15){quality=0.86;maxPx=2200}  // 6~15장: 표준
+    else if(totalCount<=30){quality=0.78;maxPx=1800}  // 16~30장: 압축
     else{quality=0.62;maxPx=1400}                     // 31장+: 강압축
     const img=new Image();
     img.onload=()=>{
@@ -876,7 +864,7 @@ function applyCrop(){
       outCanvas.getContext('2d').drawImage(cropCtx.img,minX,minY,outW,outH,0,0,outW,outH);
     }
     applyScanEffect(outCanvas);
-    const processed=outCanvas.toDataURL('image/jpeg',0.92);
+    const processed=outCanvas.toDataURL('image/jpeg',0.95);
     const m=members.find(x=>x.id===cropCtx.mid);
     if(m){
       const h=m.hospitals.find(x=>x.id===cropCtx.hid);
@@ -1280,41 +1268,80 @@ function updateCamFocus(){
   }catch(_){}
 }
 async function toggleTorch(){if(!camTrack)return;try{camTorchOn=!camTorchOn;await camTrack.applyConstraints({advanced:[{torch:camTorchOn}]})}catch(_){camTorchOn=false}}
-function camShoot(){
+let camPending=null,camPhotoOff=false;
+// 화면의 안내선 영역을 영상 기준 비율(0~1)로 계산 (가장자리 2% 여유)
+function guideRectNorm(v){
+  const vw=v.videoWidth,vh=v.videoHeight,vr=v.getBoundingClientRect(),gr=document.getElementById('cam-guide').getBoundingClientRect();
+  const sc=Math.max(vr.width/vw,vr.height/vh),offX=vr.left+(vr.width-vw*sc)/2,offY=vr.top+(vr.height-vh*sc)/2;
+  const mx=gr.width*0.02,my=gr.height*0.02;
+  let x0=(gr.left-mx-offX)/sc/vw,y0=(gr.top-my-offY)/sc/vh,x1=(gr.right+mx-offX)/sc/vw,y1=(gr.bottom+my-offY)/sc/vh;
+  x0=Math.max(0,x0);y0=Math.max(0,y0);x1=Math.min(1,x1);y1=Math.min(1,y1);
+  if(!(x1-x0>0.1&&y1-y0>0.1))return{x:0,y:0,w:1,h:1,va:vw/vh};
+  return{x:x0,y:y0,w:x1-x0,h:y1-y0,va:vw/vh};
+}
+function cropToCanvas(src,SW,SH,r){
+  // src 안에서 r(정규화) 영역을 잘라 긴 변 2400px 이하로
+  let sx=r.x*SW,sy=r.y*SH,sw=r.w*SW,sh=r.h*SH;
+  const s=Math.min(1,2400/Math.max(sw,sh));
+  const c=document.createElement('canvas');c.width=Math.round(sw*s);c.height=Math.round(sh*s);
+  const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(src,sx,sy,sw,sh,0,0,c.width,c.height);
+  return c;
+}
+async function capturePhotoCanvas(r){
+  // 폰 카메라의 '사진 찍기' 기능 사용 → 동영상 캡처보다 훨씬 선명
+  if(camPhotoOff||typeof ImageCapture==='undefined'||!camTrack)return null;
+  try{
+    const ic=new ImageCapture(camTrack);
+    const blob=await Promise.race([ic.takePhoto(),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),6000))]);
+    const bmp=await createImageBitmap(blob);
+    const PW=bmp.width,PH=bmp.height,pa=PW/PH;
+    // 영상과 사진의 가로/세로 방향이 다르면 위치 계산이 어긋나므로 포기
+    if((PW>PH)!==(r.va>1)){bmp.close&&bmp.close();camPhotoOff=true;return null}
+    // 영상은 사진의 가운데를 잘라낸 화면이라고 보고 위치를 환산
+    let ox=0,oy=0,vw=PW,vh=PH;
+    if(pa>r.va){vw=PH*r.va;ox=(PW-vw)/2}else{vh=PW/r.va;oy=(PH-vh)/2}
+    const rr={x:(ox+r.x*vw)/PW,y:(oy+r.y*vh)/PH,w:r.w*vw/PW,h:r.h*vh/PH};
+    const c=cropToCanvas(bmp,PW,PH,rr);bmp.close&&bmp.close();
+    return c;
+  }catch(e){console.log('takePhoto 미지원 → 영상 캡처 사용:',e&&e.name);camPhotoOff=true;return null}
+}
+function setShutterBusy(on){const b=document.getElementById('cam-shutter');if(b){b.style.opacity=on?'.45':'';b.disabled=!!on}const t=document.getElementById('cam-tip');if(t&&on)t.textContent='📸 저장 중... 잠시 그대로 들고 계세요'}
+async function camShoot(){
   const v=document.getElementById('cam-video');if(camBusy||!v||!v.videoWidth||!camCtx)return;
   camBusy=true;
   const fl=document.getElementById('cam-flash');fl.style.transition='none';fl.style.opacity='.85';requestAnimationFrame(()=>{fl.style.transition='opacity .3s';fl.style.opacity='0'});
   if(navigator.vibrate)try{navigator.vibrate(30)}catch(_){}
-  // 화면에 보이는 안내선 영역을 실제 영상 좌표로 환산해 그 부분만 저장 (가장자리 2% 여유)
-  const vw=v.videoWidth,vh=v.videoHeight,vr=v.getBoundingClientRect(),gr=document.getElementById('cam-guide').getBoundingClientRect();
-  const sc=Math.max(vr.width/vw,vr.height/vh),offX=vr.left+(vr.width-vw*sc)/2,offY=vr.top+(vr.height-vh*sc)/2;
-  const mx=gr.width*0.02,my=gr.height*0.02;
-  let sx=(gr.left-mx-offX)/sc,sy=(gr.top-my-offY)/sc,sw=(gr.width+2*mx)/sc,sh=(gr.height+2*my)/sc;
-  sx=Math.max(0,sx);sy=Math.max(0,sy);sw=Math.min(vw-sx,sw);sh=Math.min(vh-sy,sh);
-  if(!(sw>50&&sh>50)){sx=0;sy=0;sw=vw;sh=vh}
-  const c=document.createElement('canvas');c.width=Math.round(sw);c.height=Math.round(sh);
-  c.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,c.width,c.height);
-  const thumb=document.createElement('canvas');const ts=120/Math.max(c.width,c.height);thumb.width=Math.round(c.width*ts);thumb.height=Math.round(c.height*ts);thumb.getContext('2d').drawImage(c,0,0,thumb.width,thumb.height);
-  const li=document.getElementById('cam-last-img');li.src=thumb.toDataURL('image/jpeg',.7);li.classList.remove('hidden');thumb.width=0;
-  camShots++;const cc=document.getElementById('cam-count');cc.textContent=camShots;cc.classList.remove('hidden');
+  const r=guideRectNorm(v);
   const ctx=camCtx,replace=ctx.replace;
   if(replace)ctx.replace=null; // 다시 찍기는 한 장만 교체
-  c.toBlob(blob=>{
-    c.width=0;c.height=0;camBusy=false;
+  setShutterBusy(true);
+  camPending=(async()=>{
+    let c=await capturePhotoCanvas(r),fromPhoto=!!c;
+    if(!c)c=cropToCanvas(v,v.videoWidth,v.videoHeight,r);
+    const thumb=document.createElement('canvas');const ts=120/Math.max(c.width,c.height);thumb.width=Math.round(c.width*ts);thumb.height=Math.round(c.height*ts);thumb.getContext('2d').drawImage(c,0,0,thumb.width,thumb.height);
+    const li=document.getElementById('cam-last-img');li.src=thumb.toDataURL('image/jpeg',.7);li.classList.remove('hidden');thumb.width=0;
+    camShots++;const cc=document.getElementById('cam-count');cc.textContent=camShots;cc.classList.remove('hidden');
+    const blob=await new Promise(res=>c.toBlob(res,'image/jpeg',0.97));
+    c.width=0;c.height=0;
     if(!blob)return;
-    camChain=camChain.then(()=>processImage(blob)).then(r=>{
+    // 영상 캡처는 원래 무르니 조금 더, 사진 모드는 아주 약하게만 선명 보정
+    const sharpen=fromPhoto?0.12:0.25;
+    camChain=camChain.then(()=>processImage(blob,{sharpen})).then(res=>{
       const m=members.find(x=>x.id===ctx.mid);const h=m&&m.hospitals.find(x=>x.id===ctx.hid);
-      if(!h||!r)return;
+      if(!h||!res)return;
       const arr=h.docs[ctx.type],at=replace?arr.indexOf(replace):-1;
       if(at>=0){
-        arr.splice(at,1,r);replace.original=null;replace.processed=null;
-        if(reviewCtx){const k=reviewCtx.items.indexOf(replace);if(k>=0)reviewCtx.items[k]=r}
-      }else{arr.push(r);ctx.added.push(r)}
+        arr.splice(at,1,res);replace.original=null;replace.processed=null;
+        if(reviewCtx){const k=reviewCtx.items.indexOf(replace);if(k>=0)reviewCtx.items[k]=res}
+      }else{arr.push(res);ctx.added.push(res)}
     }).catch(e=>console.error('cam process',e));
-  },'image/jpeg',0.95);
-  if(replace)setTimeout(()=>closeGuideCamera(),250);
+  })();
+  try{await camPending}catch(e){console.error(e)}
+  camPending=null;camBusy=false;setShutterBusy(false);layoutGuide();
+  if(replace)closeGuideCamera();
 }
 async function closeGuideCamera(skipWait){
+  if(camPending){try{await camPending}catch(_){}}
   const shots=camShots,ctx=camCtx;
   stopCamStream();
   if(!skipWait&&shots>0){
