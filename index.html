@@ -202,7 +202,6 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
       </div>
       <button class="add-btn add-member-btn" onclick="addMember()">+ 가족 추가 (배우자, 자녀 등)</button>
       <div id="total-count" class="hidden" style="text-align:center;font-size:12px;color:#64748B;padding:4px 0;">총 첨부: <span id="total-num">0</span></div>
-      <div id="scan-warn" class="hidden" style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:9px 13px;font-size:11.5px;color:#9A3412;line-height:1.5;">⚠ 문서 자동 보정 기능을 불러오지 못했습니다. 사진을 최대한 반듯하게 촬영해 주세요.</div>
       <div id="proc-bar" class="proc hidden"><div class="spinner"></div><span id="proc-text">사진 처리 중...</span></div>
 
       <button class="submit" id="submit-btn" disabled onclick="handleSubmit()">
@@ -239,7 +238,6 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   <div style="background:#162D50;padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
     <button onclick="retakeCurrent()" style="background:#DC2626;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;padding:10px 14px;border-radius:8px;font-family:inherit;">📷 다시 찍기</button>
     <button onclick="rotateCropImage()" style="background:#2563EB;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;padding:10px 18px;border-radius:8px;font-family:inherit;box-shadow:0 2px 8px rgba(37,99,235,.4)">↻ 90° 회전</button>
-    <button onclick="resetToAuto()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;cursor:pointer;padding:8px 14px;border-radius:8px;font-family:inherit;">📐 영역 자동잡기</button>
     <button onclick="resetToFull()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;cursor:pointer;padding:8px 14px;border-radius:8px;font-family:inherit;">⛶ 전체 영역</button>
     <button onclick="useOriginal()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;cursor:pointer;padding:8px 14px;border-radius:8px;font-family:inherit;">↺ 처음으로</button>
   </div>
@@ -502,257 +500,7 @@ function showToast(msg,ms){let t=document.getElementById('ms-toast');if(!t){t=do
 function setVisitType(mid,hid,type){const m=members.find(x=>x.id===mid);if(m){const h=m.hospitals.find(x=>x.id===hid);if(h){h.visitType=type;render();checkSubmit()}}}
 function removeDoc(mid,hid,type,idx){const m=members.find(x=>x.id===mid);if(m){const h=m.hospitals.find(x=>x.id===hid);if(h){const d=h.docs[type][idx];if(d){d.original=null;d.processed=null}h.docs[type].splice(idx,1);render();checkSubmit()}}}
 
-let opencvReady=false, cvLoadFailed=false;
-// 보정 엔진(약 8MB)은 '영역 자동잡기'를 처음 누를 때만 받는다
-let cvLoading=null;
-function loadScript(src,attrs){return new Promise((ok,ng)=>{const e=document.createElement('script');e.src=src;e.async=true;e.referrerPolicy='no-referrer';if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);e.onload=()=>ok();e.onerror=()=>ng(new Error('load '+src));document.head.appendChild(e)})}
-function loadCV(){
-  if(opencvReady)return Promise.resolve(true);
-  if(cvLoading)return cvLoading;
-  cvLoading=(async()=>{
-    try{
-      await loadScript('https://docs.opencv.org/4.8.0/opencv.js');
-      onOpenCvReady();
-      const t0=Date.now();while(!opencvReady&&Date.now()-t0<30000)await new Promise(r=>setTimeout(r,200));
-      try{await loadScript('https://cdn.jsdelivr.net/gh/puffinsoft/jscanify@1.2.0/src/jscanify.min.js',{crossorigin:'anonymous'})}catch(_){}
-      return opencvReady;
-    }catch(e){cvLoadFailed=true;cvLoading=null;return false}
-  })();
-  return cvLoading;
-}
-function onOpenCvReady(){
-  if(typeof cv!=='undefined'){
-    if(cv.Mat)opencvReady=true;
-    else cv.onRuntimeInitialized=()=>{opencvReady=true};
-  }
-}
-
 function applyScanEffect(canvas){const ctx=canvas.getContext('2d'),id=ctx.getImageData(0,0,canvas.width,canvas.height),d=id.data;for(let i=0;i<d.length;i+=4)for(let c=0;c<3;c++){let v=d[i+c];v=((v/255-0.5)*1.15+0.5)*255+0;d[i+c]=Math.max(0,Math.min(255,v))}ctx.putImageData(id,0,0)}
-
-// jscanify를 사용한 자동 문서 보정 (실패 시 일반 보정 적용)
-/* ── 표 테두리로 문서 영역 찾기 ──
-   흰 종이는 배경과 대비가 없어 잡기 어렵지만, 인쇄된 표의 검은 선은
-   배경과 무관하게 또렷하다. 표의 바깥 선 4개를 찾아 교차점을 모서리로 쓴다. */
-function intersect(a,b){
-  // a,b: {x1,y1,x2,y2}
-  const d=(a.x1-a.x2)*(b.y1-b.y2)-(a.y1-a.y2)*(b.x1-b.x2);
-  if(Math.abs(d)<1e-6)return null;
-  const p=(a.x1*a.y2-a.y1*a.x2), q=(b.x1*b.y2-b.y1*b.x2);
-  return {x:(p*(b.x1-b.x2)-(a.x1-a.x2)*q)/d, y:(p*(b.y1-b.y2)-(a.y1-a.y2)*q)/d};
-}
-function detectTableQuad(canvas){
-  if(!opencvReady||typeof cv==='undefined')return null;
-  const W=canvas.width,H=canvas.height;
-  // 여러 감도를 차례로 시도해 사진 품질 편차를 흡수한다
-  const SETTINGS=[
-    {lo:40,hi:120,len:0.28},
-    {lo:25,hi:80, len:0.24},
-    {lo:60,hi:180,len:0.32},
-    {lo:18,hi:60, len:0.20}
-  ];
-  for(const st of SETTINGS){
-    const q=houghQuad(canvas,W,H,st);
-    if(q&&cornersPlausible(q,W,H))return q;
-  }
-  return null;
-}
-
-function houghQuad(canvas,W,H,st){
-  let src=null,gray=null,blur=null,edges=null,lines=null;
-  try{
-    src=cv.imread(canvas);
-    gray=new cv.Mat(); cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);
-    blur=new cv.Mat(); cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
-    edges=new cv.Mat(); cv.Canny(blur,edges,st.lo,st.hi);
-    lines=new cv.Mat();
-    const minLen=Math.round(Math.min(W,H)*st.len);
-    cv.HoughLinesP(edges,lines,1,Math.PI/180,Math.round(minLen*0.45),minLen,Math.round(minLen*0.3));
-    if(lines.rows<4)return null;
-
-    const hz=[],vt=[];
-    for(let i=0;i<lines.rows;i++){
-      const x1=lines.data32S[i*4],y1=lines.data32S[i*4+1],
-            x2=lines.data32S[i*4+2],y2=lines.data32S[i*4+3];
-      const dx=Math.abs(x2-x1),dy=Math.abs(y2-y1);
-      const seg={x1,y1,x2,y2,len:Math.hypot(dx,dy),cy:(y1+y2)/2,cx:(x1+x2)/2};
-      // 기울기 20도 이내를 가로/세로로 인정 (비스듬한 사진 대응)
-      if(dx>dy*2.7) hz.push(seg);
-      else if(dy>dx*2.7) vt.push(seg);
-    }
-    if(hz.length<2||vt.length<2)return null;
-
-    // 짧은 선은 표 테두리가 아닐 가능성이 크므로 긴 것 위주로 본다
-    const keep=(arr,frac)=>{
-      const max=Math.max(...arr.map(s=>s.len));
-      return arr.filter(s=>s.len>=max*frac);
-    };
-    const hzL=keep(hz,0.55), vtL=keep(vt,0.55);
-    if(hzL.length<2||vtL.length<2)return null;
-
-    hzL.sort((a,b)=>a.cy-b.cy);
-    vtL.sort((a,b)=>a.cx-b.cx);
-    const top=hzL[0], bottom=hzL[hzL.length-1];
-    const left=vtL[0], right=vtL[vtL.length-1];
-    if((bottom.cy-top.cy) < H*0.22) return null;
-    if((right.cx-left.cx) < W*0.22) return null;
-
-    const tl=intersect(top,left), tr=intersect(top,right),
-          br=intersect(bottom,right), bl=intersect(bottom,left);
-    if(!tl||!tr||!br||!bl)return null;
-
-    const cx=(tl.x+tr.x+br.x+bl.x)/4, cy=(tl.y+tr.y+br.y+bl.y)/4;
-    const pad=1.04;
-    const grow=p=>({x:cx+(p.x-cx)*pad, y:cy+(p.y-cy)*pad});
-    const clamp=p=>({x:Math.max(0,Math.min(W,p.x)), y:Math.max(0,Math.min(H,p.y))});
-    return {
-      topLeftCorner:clamp(grow(tl)), topRightCorner:clamp(grow(tr)),
-      bottomRightCorner:clamp(grow(br)), bottomLeftCorner:clamp(grow(bl))
-    };
-  }catch(e){return null}
-  finally{[src,gray,blur,edges,lines].forEach(m=>{try{m&&m.delete()}catch(_){}})}
-}
-
-/* 표 선으로 왜곡을 계산해 이미지 전체를 펴준다 (자르지 않음)
-   표가 반듯해지면 문서 전체도 함께 반듯해진다. */
-function deskewWholeImage(canvas,q){
-  const W=canvas.width,H=canvas.height;
-  const p=[q.topLeftCorner,q.topRightCorner,q.bottomRightCorner,q.bottomLeftCorner];
-  const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-
-  // 표가 펴졌을 때의 목표 크기
-  const tw=Math.max(d(p[0],p[1]),d(p[3],p[2]));
-  const th=Math.max(d(p[0],p[3]),d(p[1],p[2]));
-  if(tw<40||th<40)return null;
-
-  // 표를 (0,0)-(tw,th) 로 보내는 변환을 구한 뒤,
-  // 그 변환을 이미지 네 귀퉁이에도 적용해 전체가 들어갈 캔버스를 잡는다
-  let src=null,M=null,dst=null,sp=null,dp=null,Mfull=null,sp2=null,dp2=null;
-  try{
-    sp=cv.matFromArray(4,1,cv.CV_32FC2,[p[0].x,p[0].y,p[1].x,p[1].y,p[2].x,p[2].y,p[3].x,p[3].y]);
-    dp=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,tw,0,tw,th,0,th]);
-    M=cv.getPerspectiveTransform(sp,dp);
-
-    // M을 자바스크립트 배열로 꺼내 이미지 모서리를 투영
-    const m=[];
-    for(let i=0;i<9;i++)m.push(M.doubleAt(Math.floor(i/3),i%3));
-    const proj=(x,y)=>{
-      const w=m[6]*x+m[7]*y+m[8];
-      return {x:(m[0]*x+m[1]*y+m[2])/w, y:(m[3]*x+m[4]*y+m[5])/w};
-    };
-    const cor=[proj(0,0),proj(W,0),proj(W,H),proj(0,H)];
-    const xs=cor.map(c=>c.x), ys=cor.map(c=>c.y);
-    const minX=Math.min(...xs), maxX=Math.max(...xs);
-    const minY=Math.min(...ys), maxY=Math.max(...ys);
-    let outW=Math.round(maxX-minX), outH=Math.round(maxY-minY);
-    if(!isFinite(outW)||!isFinite(outH)||outW<50||outH<50)return null;
-
-    // 결과가 지나치게 커지면 보정이 잘못된 것으로 보고 포기
-    if(outW>W*2.2||outH>H*2.2)return null;
-
-    // 원점이 음수로 밀린 만큼 되돌려 전체가 화면에 담기게 한다
-    src=cv.imread(canvas);
-    sp2=cv.matFromArray(4,1,cv.CV_32FC2,[p[0].x,p[0].y,p[1].x,p[1].y,p[2].x,p[2].y,p[3].x,p[3].y]);
-    dp2=cv.matFromArray(4,1,cv.CV_32FC2,[
-      0-minX,0-minY, tw-minX,0-minY, tw-minX,th-minY, 0-minX,th-minY
-    ]);
-    Mfull=cv.getPerspectiveTransform(sp2,dp2);
-    dst=new cv.Mat();
-    cv.warpPerspective(src,dst,Mfull,new cv.Size(outW,outH),
-      cv.INTER_LINEAR,cv.BORDER_CONSTANT,new cv.Scalar(255,255,255,255));
-    const out=document.createElement('canvas');
-    cv.imshow(out,dst);
-    return out;
-  }catch(e){console.log('deskew fail:',e);return null}
-  finally{[src,M,dst,sp,dp,Mfull,sp2,dp2].forEach(x=>{try{x&&x.delete()}catch(_){}})}
-}
-
-/* 원근 보정 실행 */
-function warpToQuad(canvas,c){
-  const p=[c.topLeftCorner,c.topRightCorner,c.bottomRightCorner,c.bottomLeftCorner];
-  const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-  const outW=Math.round(Math.max(d(p[0],p[1]),d(p[3],p[2])));
-  const outH=Math.round(Math.max(d(p[0],p[3]),d(p[1],p[2])));
-  if(outW<50||outH<50)return null;
-  let src=null,M=null,dst=null,sp=null,dp=null;
-  try{
-    src=cv.imread(canvas);
-    sp=cv.matFromArray(4,1,cv.CV_32FC2,[p[0].x,p[0].y,p[1].x,p[1].y,p[2].x,p[2].y,p[3].x,p[3].y]);
-    dp=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,outW,0,outW,outH,0,outH]);
-    M=cv.getPerspectiveTransform(sp,dp);
-    dst=new cv.Mat();
-    cv.warpPerspective(src,dst,M,new cv.Size(outW,outH));
-    const out=document.createElement('canvas');
-    cv.imshow(out,dst);
-    return out;
-  }catch(e){console.log('warp fail:',e);return null}
-  finally{[src,M,dst,sp,dp].forEach(m=>{try{m&&m.delete()}catch(_){}})}
-}
-
-/* 감지된 네 모서리가 실제 종이 모양으로 타당한지 검사 */
-function cornersPlausible(c,W,H){
-  if(!c)return false;
-  const p=[c.topLeftCorner,c.topRightCorner,c.bottomRightCorner,c.bottomLeftCorner];
-  if(p.some(v=>!v||typeof v.x!=='number'||typeof v.y!=='number'))return false;
-
-  // 변의 길이가 지나치게 짧거나, 서로 심하게 불균형하면 실패로 본다
-  const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-  const top=d(p[0],p[1]), right=d(p[1],p[2]), bot=d(p[2],p[3]), left=d(p[3],p[0]);
-  if(Math.min(top,right,bot,left) < Math.min(W,H)*0.25) return false;
-  if(Math.max(top,bot)/Math.max(1,Math.min(top,bot)) > 1.45) return false;
-  if(Math.max(left,right)/Math.max(1,Math.min(left,right)) > 1.45) return false;
-
-  // 면적이 화면의 30% 미만이면 종이를 제대로 못 잡은 것
-  let area=0;
-  for(let i=0;i<4;i++){const a=p[i],b=p[(i+1)%4];area+=a.x*b.y-b.x*a.y}
-  area=Math.abs(area)/2;
-  if(area < W*H*0.30) return false;
-
-  // 네 점이 모두 화면 테두리에 붙어 있으면 종이를 못 찾고 전체를 잡은 것
-  const m=Math.min(W,H)*0.02;
-  const onEdge=v=>(v.x<m||v.x>W-m||v.y<m||v.y>H-m);
-  if(p.filter(onEdge).length>=3) return false;
-
-  // 각 모서리 각도가 직각에서 크게 벗어나면 실패
-  for(let i=0;i<4;i++){
-    const a=p[(i+3)%4], b=p[i], c2=p[(i+1)%4];
-    const v1={x:a.x-b.x,y:a.y-b.y}, v2={x:c2.x-b.x,y:c2.y-b.y};
-    const cos=(v1.x*v2.x+v1.y*v2.y)/(Math.hypot(v1.x,v1.y)*Math.hypot(v2.x,v2.y)||1);
-    const ang=Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI;
-    if(ang<55||ang>125) return false;
-  }
-  return true;
-}
-
-function autoScan(img){
-  if(!opencvReady||typeof cv==='undefined')return null;
-  const sourceCanvas=document.createElement('canvas');
-  sourceCanvas.width=img.width; sourceCanvas.height=img.height;
-  sourceCanvas.getContext('2d').drawImage(img,0,0);
-
-  // 1순위: 표 선으로 왜곡만 계산해 전체를 편다 (내용이 잘리지 않음)
-  const q=detectTableQuad(sourceCanvas);
-  if(q&&cornersPlausible(q,img.width,img.height)){
-    const out=deskewWholeImage(sourceCanvas,q);
-    if(out)return out;
-  }
-  // 2순위: 종이 테두리 (배경이 어두울 때 잘 됨)
-  if(typeof jscanify!=='undefined'){
-    let src=null;
-    try{
-      const scanner=new jscanify();
-      src=cv.imread(sourceCanvas);
-      const contour=scanner.findPaperContour(src);
-      if(contour){
-        const corners=scanner.getCornerPoints(contour,sourceCanvas);
-        src.delete(); src=null;
-        if(cornersPlausible(corners,img.width,img.height))
-          return scanner.extractPaper(sourceCanvas,img.width,img.height);
-      }else{src.delete();src=null}
-    }catch(e){console.log('scan fallback:',e)}
-    finally{try{src&&src.delete()}catch(_){}}
-  }
-  return null;
-}
 
 /* ═══ 방향 판별 ═══ */
 
@@ -935,61 +683,6 @@ function closeCropEditor(){
   cropCtx.img=null;cropCtx.corners=[];
 }
 
-function tryAutoDetect(){
-  if(!cropCtx.img)return false;
-  if(!opencvReady||typeof cv==='undefined')return false;
-  const tmp=document.createElement('canvas');
-  tmp.width=cropCtx.img.width; tmp.height=cropCtx.img.height;
-  tmp.getContext('2d').drawImage(cropCtx.img,0,0);
-  const W=tmp.width,H=tmp.height;
-
-  const apply=c=>{
-    if(!c||!cornersPlausible(c,W,H))return false;
-    cropCtx.corners=[
-      {x:c.topLeftCorner.x,y:c.topLeftCorner.y},
-      {x:c.topRightCorner.x,y:c.topRightCorner.y},
-      {x:c.bottomRightCorner.x,y:c.bottomRightCorner.y},
-      {x:c.bottomLeftCorner.x,y:c.bottomLeftCorner.y}
-    ];
-    return true;
-  };
-
-  // 1순위: 표 테두리
-  if(apply(detectTableQuad(tmp)))return true;
-
-  // 2순위: 종이 테두리
-  if(typeof jscanify!=='undefined'){
-    let src=null;
-    try{
-      const scanner=new jscanify();
-      src=cv.imread(tmp);
-      const contour=scanner.findPaperContour(src);
-      if(contour){
-        const pts=scanner.getCornerPoints(contour,tmp);
-        src.delete(); src=null;
-        if(apply(pts))return true;
-      }else{src.delete();src=null}
-    }catch(e){console.log('auto detect fail:',e)}
-    finally{try{src&&src.delete()}catch(_){}}
-  }
-  return false;
-}
-
-async function resetToAuto(){
-  if(!opencvReady){
-    showToast('자동잡기 준비 중... (처음 한 번만 몇 초 걸려요)',8000);
-    const ready=await loadCV();
-    document.getElementById('ms-toast')&&document.getElementById('ms-toast').classList.add('hidden');
-    if(!ready){alert('자동잡기 기능을 불러오지 못했습니다.\n네 모서리를 직접 드래그해서 영역을 지정해주세요.');return}
-    if(!cropCtx.img)return;
-  }
-  const ok=tryAutoDetect();
-  if(!ok){
-    alert('문서 모서리를 찾을 수 없습니다.\n네 모서리를 직접 드래그해서 영역을 지정해주세요.');
-    return;
-  }
-  drawCrop();
-}
 function resetToFull(){
   if(!cropCtx.img)return;
   const w=cropCtx.img.width,h=cropCtx.img.height;
@@ -1169,32 +862,7 @@ function applyCrop(){
     let outCanvas;let outW,outH;
     // 자체 원근 보정 (보정 엔진 없이 동작)
     try{const r=warpQuadJS(cropCtx.img,c);outCanvas=r.canvas;outW=r.w;outH=r.h}catch(e){console.log('js warp fail:',e);outCanvas=null}
-    if(!outCanvas&&opencvReady&&typeof cv!=='undefined'){
-      try{
-        const tmpCanvas=document.createElement('canvas');
-        tmpCanvas.width=cropCtx.img.width;tmpCanvas.height=cropCtx.img.height;
-        tmpCanvas.getContext('2d').drawImage(cropCtx.img,0,0);
-        const src=cv.imread(tmpCanvas);
-        const wTop=Math.hypot(c[1].x-c[0].x,c[1].y-c[0].y);
-        const wBot=Math.hypot(c[2].x-c[3].x,c[2].y-c[3].y);
-        const hL=Math.hypot(c[3].x-c[0].x,c[3].y-c[0].y);
-        const hR=Math.hypot(c[2].x-c[1].x,c[2].y-c[1].y);
-        outW=Math.round(Math.max(wTop,wBot));
-        outH=Math.round(Math.max(hL,hR));
-        const srcPts=cv.matFromArray(4,1,cv.CV_32FC2,[c[0].x,c[0].y,c[1].x,c[1].y,c[2].x,c[2].y,c[3].x,c[3].y]);
-        const dstPts=cv.matFromArray(4,1,cv.CV_32FC2,[0,0,outW,0,outW,outH,0,outH]);
-        const M=cv.getPerspectiveTransform(srcPts,dstPts);
-        const dst=new cv.Mat();
-        cv.warpPerspective(src,dst,M,new cv.Size(outW,outH));
-        outCanvas=document.createElement('canvas');
-        cv.imshow(outCanvas,dst);
-        src.delete();dstPts.delete();srcPts.delete();M.delete();dst.delete();
-      }catch(cvErr){
-        console.log('OpenCV failed, using fallback:',cvErr);
-        outCanvas=null;
-      }
-    }
-    // OpenCV 실패 또는 미로딩 시 - bounding rect 기반 단순 크롭
+    // 자체 보정 실패 시 - 사각 영역 단순 크롭
     if(!outCanvas){
       const xs=c.map(p=>p.x),ys=c.map(p=>p.y);
       const minX=Math.max(0,Math.min(...xs));
