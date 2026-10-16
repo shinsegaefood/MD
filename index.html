@@ -77,6 +77,47 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 .doc-thumb{width:44px;height:44px;border-radius:6px;overflow:hidden;position:relative;border:1px solid #E2E8F0}
 .doc-thumb img{width:100%;height:100%;object-fit:cover}
 .doc-thumb-del{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#EF4444;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;cursor:pointer;font-weight:700;z-index:2;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.doc-thumb-blur{position:absolute;top:-3px;left:-3px;background:#DC2626;color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:6px;border:1.5px solid #fff;line-height:1.2;pointer-events:none}
+.doc-thumb.blurry img{outline:2px solid #DC2626;outline-offset:-2px}
+.hospital-name.err{border-color:#DC2626!important;background:#FEF2F2!important}
+.hospital-name.err::placeholder{color:#DC2626}
+#ms-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(15,23,42,.94);color:#fff;font-size:13px;font-weight:600;padding:11px 16px;border-radius:12px;z-index:400;max-width:88%;text-align:center;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.chk-row{display:flex;gap:4px;margin-top:7px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chk-row::-webkit-scrollbar{display:none}
+.chk{flex:none;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:20px;border:1px solid;white-space:nowrap;cursor:pointer;font-family:inherit;line-height:1.4}
+.chk.ok{color:#047857;background:#ECFDF5;border-color:#A7F3D0}
+.chk.bad{color:#B91C1C;background:#FEF2F2;border-color:#FECACA}
+.chk.wait{color:#94A3B8;background:#F8FAFC;border-color:#E2E8F0}
+.hospital-card.flash{animation:hcFlash 1.2s ease}
+@keyframes hcFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px #F87171}}
+.doc-thumb{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.doc-thumb img{-webkit-user-drag:none;pointer-events:none}
+.doc-thumb.dragging{opacity:.25}
+.doc-thumb.drop-target{outline:3px solid #2563EB;outline-offset:1px}
+#drag-ghost{position:fixed;width:60px;height:60px;border-radius:8px;overflow:hidden;z-index:500;pointer-events:none;box-shadow:0 10px 24px rgba(0,0,0,.35);border:2px solid #2563EB;transform:translate(-50%,-70%)}
+#drag-ghost img{width:100%;height:100%;object-fit:cover}
+#cam-popup{position:fixed;inset:0;z-index:300;background:#000;overflow:hidden}
+#cam-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#cam-guide{position:absolute;border:2.5px solid rgba(255,255,255,.95);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.42);pointer-events:none;transition:all .2s}
+#cam-guide i{position:absolute;width:26px;height:26px;border:5px solid #34D399}
+#cam-guide i:nth-child(1){top:-5px;left:-5px;border-right:0;border-bottom:0;border-top-left-radius:8px}
+#cam-guide i:nth-child(2){top:-5px;right:-5px;border-left:0;border-bottom:0;border-top-right-radius:8px}
+#cam-guide i:nth-child(3){bottom:-5px;left:-5px;border-right:0;border-top:0;border-bottom-left-radius:8px}
+#cam-guide i:nth-child(4){bottom:-5px;right:-5px;border-left:0;border-top:0;border-bottom-right-radius:8px}
+#cam-top{position:absolute;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,0));color:#fff}
+#cam-bottom{position:absolute;left:0;right:0;bottom:0;height:120px;display:flex;align-items:center;justify-content:space-around;background:rgba(0,0,0,.55);padding-bottom:env(safe-area-inset-bottom)}
+@media (orientation:landscape){#cam-top{right:110px;height:48px}#cam-bottom{left:auto;top:0;width:110px;height:auto;flex-direction:column}}
+.cam-btn{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:13px;font-weight:700;padding:8px 12px;border-radius:10px;font-family:inherit;cursor:pointer}
+#cam-shutter{width:72px;height:72px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,.45);background-clip:padding-box;cursor:pointer;flex:none}
+#cam-shutter:active{transform:scale(.92)}
+#cam-last{width:52px;height:52px;border-radius:8px;overflow:hidden;border:2px solid rgba(255,255,255,.7);position:relative;background:#222;flex:none}
+#cam-last img{width:100%;height:100%;object-fit:cover}
+#cam-count{position:absolute;top:-8px;right:-8px;background:#2563EB;color:#fff;font-size:11px;font-weight:800;min-width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 4px}
+#cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .25s}
+#cam-focus{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;background:rgba(0,0,0,.45)}
+#cam-tip{position:absolute;left:50%;transform:translateX(-50%);color:#fff;font-size:12.5px;font-weight:600;background:rgba(0,0,0,.55);padding:6px 12px;border-radius:14px;white-space:nowrap;pointer-events:none}
+#cam-err{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:24px;background:#0C1929}
+.cf-h{border:1px solid #E2E8F0;border-radius:10px;padding:9px 11px;margin-bottom:7px;text-align:left}
 .doc-thumb-warn{position:absolute;bottom:-3px;left:-3px;background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:6px;border:1.5px solid #fff;line-height:1.2;pointer-events:none}
 .doc-thumb-scanned{position:absolute;bottom:-3px;left:-3px;background:#10B981;color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:6px;border:1.5px solid #fff;line-height:1.2;pointer-events:none}
 .nb{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;border-radius:7px;cursor:pointer;font-family:inherit;padding:0}
@@ -136,6 +177,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
           <button class="sticky-type-btn" id="type-sup" onclick="setType('supplement')">📎 누락서류</button>
         </div>
       </div>
+      <div id="check-chips" class="chk-row"></div>
     </div>
 
     <div class="main">
@@ -146,7 +188,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
         📱 <b>참고:</b> 브라우저를 닫지만 마세요. 폰 잠금이나 앱 전환은 괜찮습니다.
       </div>
       <button class="add-btn add-member-btn" onclick="addMember()">+ 가족 추가 (배우자, 자녀 등)</button>
-      <div id="total-count" class="hidden" style="text-align:center;font-size:12px;color:#64748B;padding:4px 0;">총 첨부: <span id="total-num">0</span>장</div>
+      <div id="total-count" class="hidden" style="text-align:center;font-size:12px;color:#64748B;padding:4px 0;">총 첨부: <span id="total-num">0</span></div>
       <div id="scan-warn" class="hidden" style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:9px 13px;font-size:11.5px;color:#9A3412;line-height:1.5;">⚠ 문서 자동 보정 기능을 불러오지 못했습니다. 사진을 최대한 반듯하게 촬영해 주세요.</div>
       <div id="proc-bar" class="proc hidden"><div class="spinner"></div><span id="proc-text">문서 자동 보정 중...</span></div>
 
@@ -163,7 +205,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 <!-- POPUPS -->
 <div id="crop-popup" class="overlay hidden" style="padding:0;align-items:stretch;flex-direction:column;background:rgba(0,0,0,.92);">
   <div style="background:#0C1929;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;color:#fff;">
-    <button onclick="closeCropEditor()" style="background:none;border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;padding:4px 8px;">✕ 취소</button>
+    <button onclick="closeCropEditor();afterEditPrompt()" style="background:none;border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;padding:4px 8px;">✕ 취소</button>
     <div style="text-align:center"><div style="font-size:14px;font-weight:700;">방향·영역 확인</div><div id="rot-hint" style="font-size:10.5px;color:#FCD34D;margin-top:2px">옆으로 누웠으면 90° 회전을 눌러주세요</div></div>
     <button onclick="applyCrop()" style="background:#10B981;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;padding:6px 14px;border-radius:8px;font-family:inherit;">적용 ✓</button>
   </div>
@@ -182,6 +224,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
     </div>
   </div>
   <div style="background:#162D50;padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+    <button onclick="retakeCurrent()" style="background:#DC2626;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;padding:10px 14px;border-radius:8px;font-family:inherit;">📷 다시 찍기</button>
     <button onclick="rotateCropImage()" style="background:#2563EB;border:none;color:#fff;font-size:13px;font-weight:800;cursor:pointer;padding:10px 18px;border-radius:8px;font-family:inherit;box-shadow:0 2px 8px rgba(37,99,235,.4)">↻ 90° 회전</button>
     <button onclick="resetToAuto()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;cursor:pointer;padding:8px 14px;border-radius:8px;font-family:inherit;">📐 영역 자동잡기</button>
     <button onclick="resetToFull()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;cursor:pointer;padding:8px 14px;border-radius:8px;font-family:inherit;">⛶ 전체 영역</button>
@@ -197,6 +240,9 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
       <div id="shoot-tip" class="hidden" style="margin-top:8px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:9px;padding:8px 12px;font-size:11.5px;color:#1E40AF;line-height:1.5;text-align:left;">📱 <b>세부내역서는 가로 문서입니다.</b><br>폰을 옆으로 눕혀서 화면 가득 찍어주세요.</div>
     </div>
     <div style="padding:14px 20px;display:flex;flex-direction:column;gap:8px;">
+      <button onclick="pickSource('guide')" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;font-size:14px;font-weight:700;color:#047857;background:#ECFDF5;border:1.5px solid #A7F3D0;border-radius:12px;font-family:inherit;text-align:left;">
+        <span style="font-size:22px;">📐</span><div><div>안내선 보며 촬영</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px;">반듯하게 찍기 쉬움 · 여러 장 연속 촬영</div></div>
+      </button>
       <button onclick="pickSource('camera')" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;font-size:14px;font-weight:700;color:#1D4ED8;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;font-family:inherit;text-align:left;">
         <span style="font-size:22px;">📷</span><div><div>카메라로 촬영</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px;">서류를 직접 촬영</div></div>
       </button>
@@ -275,6 +321,64 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
+<div id="cam-popup" class="hidden">
+  <video id="cam-video" playsinline muted autoplay></video>
+  <div id="cam-guide"><i></i><i></i><i></i><i></i></div>
+  <div id="cam-tip"></div>
+  <div id="cam-flash"></div>
+  <div id="cam-top">
+    <button class="cam-btn" onclick="closeGuideCamera()">✕</button>
+    <div style="text-align:center;"><div id="cam-title" style="font-size:14px;font-weight:800;"></div><div id="cam-focus" class="hidden" style="margin-top:3px;display:inline-block;"></div></div>
+    <button class="cam-btn hidden" id="cam-torch" onclick="toggleTorch()">🔦</button><span id="cam-torch-sp" style="width:42px"></span>
+  </div>
+  <div id="cam-bottom">
+    <div id="cam-last"><img id="cam-last-img" class="hidden"><div id="cam-count" class="hidden">0</div></div>
+    <button id="cam-shutter" onclick="camShoot()" aria-label="촬영"></button>
+    <button class="cam-btn" id="cam-done" onclick="closeGuideCamera()" style="background:#10B981;border-color:#10B981;">완료</button>
+  </div>
+  <div id="cam-err" class="hidden">
+    <div style="font-size:40px;">📷</div>
+    <div style="font-size:15px;font-weight:800;">카메라를 열 수 없습니다</div>
+    <div id="cam-err-msg" style="font-size:12.5px;color:#CBD5E1;line-height:1.6;"></div>
+    <button onclick="camFallbackNative()" style="padding:13px 22px;font-size:14px;font-weight:800;color:#fff;background:#2563EB;border:none;border-radius:12px;font-family:inherit;">기본 카메라로 찍기</button>
+    <button onclick="closeGuideCamera()" style="padding:10px 22px;font-size:13px;font-weight:700;color:#CBD5E1;background:none;border:1px solid #475569;border-radius:12px;font-family:inherit;">닫기</button>
+  </div>
+</div>
+
+<div id="more-popup" class="overlay hidden" style="align-items:flex-end;padding:0">
+  <div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 20px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.2);animation:fadeUp .25s ease;text-align:center;">
+    <div id="more-title" style="font-size:15px;font-weight:800;color:#065F46;margin-bottom:4px;"></div>
+    <div id="more-sub" style="font-size:13px;color:#475569;margin-bottom:14px;"></div>
+    <button onclick="moreShoot()" style="width:100%;padding:14px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:12px;font-family:inherit;margin-bottom:8px;">📷 한 장 더 찍기</button>
+    <button onclick="closeMorePrompt()" style="width:100%;padding:12px;font-size:14px;font-weight:700;color:#475569;background:#F1F5F9;border:none;border-radius:12px;font-family:inherit;">다 찍었어요</button>
+  </div>
+</div>
+
+<div id="confirm-popup" class="overlay hidden">
+  <div style="background:#fff;border-radius:18px;width:92%;max-width:380px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;">
+    <div style="padding:16px 20px;border-bottom:1px solid #F1F5F9;text-align:center;"><div style="font-size:16px;font-weight:800;color:#0F2940;">보내기 전에 확인해주세요</div><div id="cf-who" style="font-size:12px;color:#64748B;margin-top:3px;"></div></div>
+    <div id="cf-body" style="padding:12px 16px;overflow-y:auto;flex:1;"></div>
+    <div style="padding:12px 16px;border-top:1px solid #F1F5F9;display:flex;gap:8px;">
+      <button onclick="closeSubmitConfirm()" style="flex:1;padding:13px;font-size:14px;font-weight:700;color:#475569;background:#F1F5F9;border:none;border-radius:12px;font-family:inherit;">수정하기</button>
+      <button onclick="closeSubmitConfirm();doSubmit()" style="flex:1.4;padding:13px;font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:12px;font-family:inherit;box-shadow:0 4px 12px rgba(37,99,235,.3);">이대로 보내기</button>
+    </div>
+  </div>
+</div>
+
+<div id="fail-popup" class="overlay hidden">
+  <div style="background:#fff;border-radius:20px;width:90%;max-width:340px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;text-align:center;">
+    <div style="background:#FEF2F2;padding:22px 24px 16px;font-size:44px;">⚠️</div>
+    <div style="padding:18px 22px 22px;">
+      <div style="font-size:18px;font-weight:800;color:#991B1B;margin-bottom:8px;">전송을 확인하지 못했습니다</div>
+      <div style="font-size:13px;color:#475569;line-height:1.6;margin-bottom:6px;">첨부한 사진은 <b>그대로 남아 있습니다.</b><br>인터넷 연결을 확인한 뒤 다시 보내주세요.</div>
+      <div id="fail-detail" style="font-size:11px;color:#94A3B8;margin-bottom:16px;"></div>
+      <button onclick="retrySubmit()" style="width:100%;padding:14px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:12px;font-family:inherit;margin-bottom:8px;">다시 보내기</button>
+      <button onclick="document.getElementById('fail-popup').classList.add('hidden')" style="width:100%;padding:12px;font-size:13px;font-weight:700;color:#64748B;background:#F1F5F9;border:none;border-radius:12px;font-family:inherit;">닫기 (나중에 다시 시도)</button>
+      <div style="font-size:10.5px;color:#94A3B8;margin-top:10px;line-height:1.5;">계속 실패하면 담당자에게 문의해주세요</div>
+    </div>
+  </div>
+</div>
+
 <div id="complete-popup" class="overlay hidden">
   <div style="background:#fff;border-radius:20px;width:90%;max-width:340px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .4s ease;text-align:center;">
     <div style="background:linear-gradient(180deg,#F0FDF4,#DCFCE7);padding:28px 24px 20px;"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
@@ -282,7 +386,11 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
       <div style="font-size:20px;font-weight:800;color:#065F46;margin-bottom:8px;">전송 완료!</div>
       <div style="font-size:14px;color:#047857;font-weight:600;margin-bottom:4px;"><span id="complete-name"></span>님의</div>
       <div style="font-size:14px;color:#047857;margin-bottom:16px;">서류가 정상적으로 전송되었습니다.</div>
-      <div style="font-size:11.5px;color:#6EE7B7;margin-bottom:20px;">담당자 Google Drive에 안전하게 저장되었습니다</div>
+      <div style="background:#F8FAFC;border:1.5px dashed #94A3B8;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+        <div style="font-size:11px;color:#64748B;font-weight:700;">접수번호</div>
+        <div id="complete-receipt" style="font-size:24px;font-weight:900;color:#0F2940;letter-spacing:2px;font-family:ui-monospace,Menlo,monospace;">-</div>
+      </div>
+      <div style="font-size:11.5px;color:#64748B;margin-bottom:18px;line-height:1.5;">📸 이 화면을 <b>캡처</b>해 두시면<br>문의 시 빠르게 확인할 수 있어요</div>
       <button onclick="closeCompletePopup()" style="width:100%;padding:14px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#059669,#10B981);border:none;border-radius:12px;font-family:inherit;box-shadow:0 4px 12px rgba(16,185,129,.3);">확인</button>
     </div>
   </div>
@@ -306,6 +414,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 <script>
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycby4kliXeZngzS5tiNeExt9sZyVyVQeXN5PMbCDhYIscnc4Kl6SSKK5r3oZxFkwMX3e6/exec";
 const SESSION_TIMEOUT_MS=30*60*1000;
+let pendingPayload=null,submitBusy=false;
 let submitType='new',members=[],idC=1,sessionTimer=null,warningTimer=null,pendingUpload=null;
 let wakeLock=null;
 
@@ -341,7 +450,7 @@ function closeCompletePopup(){document.getElementById('complete-popup').classLis
 
 function agreeAndStart(){showScreen('main-screen');initState();resetTimer();requestWakeLock();setTimeout(()=>{if(cvLoadFailed||!opencvReady){const el=document.getElementById('scan-warn');if(el&&cvLoadFailed)el.classList.remove('hidden')}},8000);['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
 function resetTimer(){document.getElementById('timeout-warn').classList.add('hidden');if(warningTimer)clearTimeout(warningTimer);if(sessionTimer)clearTimeout(sessionTimer);warningTimer=setTimeout(()=>document.getElementById('timeout-warn').classList.remove('hidden'),SESSION_TIMEOUT_MS-60000);sessionTimer=setTimeout(()=>{secureCleanup();releaseWakeLock();initState();showScreen('consent-screen')},SESSION_TIMEOUT_MS)}
-function secureCleanup(){for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
+function secureCleanup(){pendingPayload=null;try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
 
 function setType(type){submitType=type;document.getElementById('type-new').className='sticky-type-btn'+(type==='new'?' active-new':'');document.getElementById('type-sup').className='sticky-type-btn'+(type==='supplement'?' active-sup':'')}
 
@@ -363,7 +472,11 @@ function closeFamilyPopup(){document.getElementById('family-popup').classList.ad
 function removeMember(mid){const m=members.find(x=>x.id===mid);if(m)for(const h of m.hospitals)for(const t of['confirm','receipt','detail'])for(const d of h.docs[t]){d.original=null;d.processed=null};members=members.filter(x=>x.id!==mid);render();checkSubmit()}
 function addHospital(mid){const m=members.find(x=>x.id===mid);if(m){m.hospitals.push(makeHospital());render()}}
 function removeHospital(mid,hid){const m=members.find(x=>x.id===mid);if(m&&m.hospitals.length>1){const h=m.hospitals.find(x=>x.id===hid);if(h)for(const t of['confirm','receipt','detail'])for(const d of h.docs[t]){d.original=null;d.processed=null};m.hospitals=m.hospitals.filter(x=>x.id!==hid);render();checkSubmit()}}
-function updateHospitalName(mid,hid,val){const m=members.find(x=>x.id===mid);if(m){const h=m.hospitals.find(x=>x.id===hid);if(h)h.name=val}}
+function updateHospitalName(mid,hid,val,el){const m=members.find(x=>x.id===mid);if(m){const h=m.hospitals.find(x=>x.id===hid);if(h){h.name=val;if(el){const miss=hospHasDocs(h)&&!val.trim();el.classList.toggle('err',miss);el.placeholder=miss?'⚠️ 병원명을 입력해주세요 (필수)':'병원명 (예: 삼성서울병원)'}checkSubmit()}}}
+function hospHasDocs(h){return h.docs.confirm.length+h.docs.receipt.length+h.docs.detail.length>0}
+function escHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let toastTimer=null;
+function showToast(msg,ms){let t=document.getElementById('ms-toast');if(!t){t=document.createElement('div');t.id='ms-toast';document.body.appendChild(t)}t.innerHTML=msg;t.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),ms||3500)}
 function setVisitType(mid,hid,type){const m=members.find(x=>x.id===mid);if(m){const h=m.hospitals.find(x=>x.id===hid);if(h){h.visitType=type;render();checkSubmit()}}}
 function removeDoc(mid,hid,type,idx){const m=members.find(x=>x.id===mid);if(m){const h=m.hospitals.find(x=>x.id===hid);if(h){const d=h.docs[type][idx];if(d){d.original=null;d.processed=null}h.docs[type].splice(idx,1);render();checkSubmit()}}}
 
@@ -641,6 +754,8 @@ function processImage(file){
         resizeCanvas.width=w;resizeCanvas.height=h;
         resizeCanvas.getContext('2d').drawImage(base,0,0,w,h);
         base.width=0;base.height=0;
+        let blurScore=99;
+        try{blurScore=sharpnessScore(resizeCanvas)}catch(_){}
         const resizedImg=new Image();
         resizedImg.onload=()=>{
           // 2단계: 문서 자동 감지 + 원근 보정 시도
@@ -659,7 +774,7 @@ function processImage(file){
           const fw=finalCanvas.width,fh=finalCanvas.height;
           resizeCanvas.width=0;resizeCanvas.height=0;
           if(finalCanvas!==resizeCanvas){finalCanvas.width=0;finalCanvas.height=0}
-          resolve({id:Date.now()+Math.random(),original:processed,processed,width:fw,height:fh,scanned:wasScanned,autoRot:deg});
+          resolve({id:Date.now()+Math.random(),original:processed,processed,width:fw,height:fh,scanned:wasScanned,autoRot:deg,blurScore,blurry:blurScore<BLUR_THRESHOLD});
         };
         resizedImg.src=resizeCanvas.toDataURL('image/jpeg',0.95);
       };
@@ -670,6 +785,24 @@ function processImage(file){
 }
 
 // 전송 시 장수에 따라 자동 품질 조절
+// ═══ 흐림 감지: 짧은 변 1000px 기준 회색조 라플라시안, 상위 10% 평균 ═══
+// 실측: 선명 40~51 / 약간 흐림 7~9.5 / 많이 흐림 ~3 → 18 미만이면 흐림
+const BLUR_THRESHOLD=18;
+function sharpnessScore(srcCanvas){
+  const sc=1000/Math.min(srcCanvas.width,srcCanvas.height);
+  const w=Math.max(3,Math.round(srcCanvas.width*sc)),h=Math.max(3,Math.round(srcCanvas.height*sc));
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const cx=c.getContext('2d');cx.imageSmoothingQuality='medium';cx.drawImage(srcCanvas,0,0,w,h);
+  const px=cx.getImageData(0,0,w,h).data;c.width=0;c.height=0;
+  const g=new Float32Array(w*h);
+  for(let i=0,j=0;i<g.length;i++,j+=4)g[i]=Math.round(px[j]*.299+px[j+1]*.587+px[j+2]*.114);
+  const hist=new Uint32Array(1021);let n=0;
+  for(let y=1;y<h-1;y++){const r=y*w;for(let x=1;x<w-1;x++){const i=r+x;
+    let v=4*g[i]-g[i-1]-g[i+1]-g[i-w]-g[i+w];if(v<0)v=-v;hist[v|0]++;n++}}
+  let need=Math.max(1,Math.floor(n*0.1)),sum=0,cnt=0;
+  for(let v=1020;v>=0&&cnt<need;v--){const take=Math.min(hist[v],need-cnt);sum+=take*v;cnt+=take}
+  return cnt?sum/cnt:0;
+}
 function recompressForSend(imgDataUrl, totalCount){
   return new Promise(resolve=>{
     let quality, maxPx;
@@ -731,7 +864,10 @@ function openCropEditor(mid,hid,type,idx){
         resetToFull();   // 전체 영역 유지 — 필요하면 직원이 직접 좁힌다
         const hint=document.getElementById('rot-hint');
         if(hint){
-          if(d.scanned){
+          if(d.blurry){
+            hint.textContent='⚠ 사진이 흐립니다 · 글자가 안 보이면 아래 "다시 찍기"를 눌러주세요';
+            hint.style.color='#FCA5A5';
+          }else if(d.scanned){
             hint.textContent='✓ 자동으로 반듯하게 폈습니다 · 그대로 적용하셔도 됩니다';
             hint.style.color='#6EE7B7';
           }else{
@@ -746,6 +882,13 @@ function openCropEditor(mid,hid,type,idx){
   img.src=sourceImg;
 }
 
+function retakeCurrent(){
+  askMoreAfterEdit=null;
+  const{mid,hid,type,idx}=cropCtx;
+  closeCropEditor();
+  removeDoc(mid,hid,type,idx);
+  openSourcePicker(mid,hid,type);
+}
 function closeCropEditor(){
   document.getElementById('crop-popup').classList.add('hidden');
   cropCtx.img=null;cropCtx.corners=[];
@@ -987,7 +1130,7 @@ function applyCrop(){
       }
     }
     outCanvas.width=0;outCanvas.height=0;
-    closeCropEditor();render();checkSubmit();
+    closeCropEditor();render();checkSubmit();afterEditPrompt();
   }catch(e){console.error('crop apply error:',e);alert('보정 적용에 실패했습니다.\n오류: '+e.message)}
 }
 
@@ -1039,7 +1182,20 @@ function openSourcePicker(mid,hid,type){
   document.getElementById('source-popup').classList.remove('hidden');
 }
 function closeSourcePicker(){document.getElementById('source-popup').classList.add('hidden')}
-function pickSource(src){closeSourcePicker();if(src==='camera')document.getElementById('cameraInput').click();else document.getElementById('fileInput').click()}
+function pickSource(src){closeSourcePicker();lastSource=src;if(src==='guide'){openGuideCamera();return}if(src==='camera')document.getElementById('cameraInput').click();else document.getElementById('fileInput').click()}
+// ═══ A. 연속 촬영 — 기본 카메라로 1장 찍고 편집을 마치면 "한 장 더?" ═══
+let askMoreAfterEdit=null,lastSource='camera';
+const DOC_NAME={confirm:'진단서',receipt:'영수증',detail:'세부내역서'};
+function afterEditPrompt(){
+  const a=askMoreAfterEdit;askMoreAfterEdit=null;if(!a)return;
+  const m=members.find(x=>x.id===a.mid);const h=m&&m.hospitals.find(x=>x.id===a.hid);if(!h)return;
+  document.getElementById('more-title').textContent='✓ '+DOC_NAME[a.type]+' '+h.docs[a.type].length+'장 첨부됨';
+  document.getElementById('more-sub').textContent='같은 병원 '+DOC_NAME[a.type]+'가 더 있나요?';
+  moreCtx=a;document.getElementById('more-popup').classList.remove('hidden');
+}
+let moreCtx=null;
+function closeMorePrompt(){document.getElementById('more-popup').classList.add('hidden');moreCtx=null}
+function moreShoot(){const a=moreCtx;closeMorePrompt();if(!a)return;pendingUpload={mid:a.mid,hid:a.hid,type:a.type};lastSource='camera';document.getElementById('cameraInput').click()}
 function openInfoPopup(){document.getElementById('info-popup').classList.remove('hidden')}
 function closeInfoPopup(){document.getElementById('info-popup').classList.add('hidden')}
 
@@ -1067,8 +1223,14 @@ async function handleFileInput(input){
       input.value='';
       bar.classList.add('hidden');
       render();checkSubmit();
+      if(files.length>1){
+        const added=h.docs[type].slice(-files.length);
+        const nb=added.filter(d=>d&&d.blurry).length;
+        if(nb>0)showToast('⚠ 흐린 사진 '+nb+'장이 있어요<br><span style="font-weight:500;font-size:12px">빨간 <b>흐림</b> 표시 사진을 탭해서 다시 찍어주세요</span>',5000);
+      }
       // 단일 사진 업로드 시 자동으로 영역 편집 화면 표시
       if(files.length===1&&firstAddedIdx!==-1){
+        askMoreAfterEdit=lastSource==='camera'?{mid,hid,type}:null;
         setTimeout(()=>openCropEditor(mid,hid,type,firstAddedIdx),350);
       }
       return;
@@ -1089,8 +1251,8 @@ function render(){
     return`<div class="member-card ${isF?'family':''}">
       <div class="member-header"><span class="member-badge ${isF?'family':''}">${m.label}</span>${isF?`<button class="member-del" onclick="removeMember(${m.id})">✕</button>`:''}</div>
       ${!isF?'<div style="font-size:10.5px;color:#1E40AF;background:#EFF6FF;padding:6px 10px;border-radius:8px;margin-bottom:10px;line-height:1.5;border:1px solid #BFDBFE;">💡 병원별로 <b>최초신청</b> 또는 <b>재진</b>을 선택해주세요</div>':''}
-      ${m.hospitals.map(h=>`<div class="hospital-card">
-        <div class="hospital-header"><span style="font-size:14px">🏥</span><input class="hospital-name" type="text" placeholder="병원명 (예: 삼성서울병원)" value="${h.name}" oninput="updateHospitalName(${m.id},${h.id},this.value)">${m.hospitals.length>1?`<button class="hospital-del" onclick="removeHospital(${m.id},${h.id})">✕</button>`:''}</div>
+      ${m.hospitals.map(h=>`<div class="hospital-card" id="hc-${h.id}">
+        <div class="hospital-header"><span style="font-size:14px">🏥</span><input class="hospital-name${hospHasDocs(h)&&!h.name.trim()?' err':''}" type="text" placeholder="${hospHasDocs(h)&&!h.name.trim()?'⚠️ 병원명을 입력해주세요 (필수)':'병원명 (예: 삼성서울병원)'}" value="${escHtml(h.name)}" oninput="updateHospitalName(${m.id},${h.id},this.value,this)">${m.hospitals.length>1?`<button class="hospital-del" onclick="removeHospital(${m.id},${h.id})">✕</button>`:''}</div>
         <div style="margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:${h.visitType?'#0F2940':'#DC2626'};margin-bottom:6px;">${h.visitType?'신청 유형':'⚠️ 신청 유형을 선택해주세요 (필수)'}</div>
           <div style="display:flex;gap:6px;">
@@ -1112,7 +1274,8 @@ function render(){
           <div class="doc-icon">${dt.icon}</div>
           <div class="doc-info"><div class="doc-label">${dt.label}${isRequired?'<span style="color:#DC2626;font-size:10px;margin-left:4px;">*필수</span>':''}</div><div class="doc-count">${cnt>0?'<span style=color:#059669;font-weight:700>✓ '+cnt+'장 첨부</span>':isRequired?'<span style=color:#DC2626;font-weight:600>미첨부</span>':'<span style=color:#94A3B8>선택</span>'}</div></div>
           <button class="doc-upload-btn" onclick="openSourcePicker(${m.id},${h.id},'${dt.key}')">📷 첨부</button>
-          ${cnt>0?`<div class="doc-thumbs">${docs.map((d,di)=>`<div class="doc-thumb" onclick="openCropEditor(${m.id},${h.id},'${dt.key}',${di})" style="cursor:pointer" title="탭하여 영역 조정"><img src="${d.processed}"><div class="doc-thumb-del" onclick="event.stopPropagation();removeDoc(${m.id},${h.id},'${dt.key}',${di})">✕</div>${d.scanned?'<div class="doc-thumb-scanned">스캔</div>':'<div class="doc-thumb-warn">보정필요</div>'}${d.manuallyEdited?'<div class="doc-thumb-edit">✎</div>':''}</div>`).join('')}<div style="width:100%;font-size:10px;color:#94A3B8;margin-top:2px;">💡 사진을 탭하면 영역 수정 가능</div></div>`:''}</div>`}).join('')}</div>
+          ${cnt>0?`<div class="doc-thumbs">${docs.map((d,di)=>`<div class="doc-thumb${d.blurry?' blurry':''}" data-k="${m.id}|${h.id}|${dt.key}" data-i="${di}" onclick="if(Date.now()>suppressThumbClickUntil)openCropEditor(${m.id},${h.id},'${dt.key}',${di})" style="cursor:pointer" title="탭하여 영역 조정"><img src="${d.processed}">${d.blurry?'<div class="doc-thumb-blur">흐림</div>':''}<div class="doc-thumb-del" onclick="event.stopPropagation();removeDoc(${m.id},${h.id},'${dt.key}',${di})">✕</div>${d.scanned?'<div class="doc-thumb-scanned">스캔</div>':'<div class="doc-thumb-warn">보정필요</div>'}${d.manuallyEdited?'<div class="doc-thumb-edit">✎</div>':''}</div>`).join('')}<div style="width:100%;font-size:10px;color:#94A3B8;margin-top:2px;">💡 탭: 영역 수정${cnt>1?' · 꾹 눌러 끌기: 순서 변경':''}</div>${docs.some(d=>d.blurry)?'<div style="width:100%;font-size:10.5px;color:#DC2626;font-weight:600;margin-top:2px;">⚠ 흐린 사진이 있어요 · 탭해서 다시 찍기를 권장합니다</div>':''}</div>`:''}</div>`}).join('')}</div>
+        ${h.docs.receipt.length>0&&h.docs.detail.length===0?'<div style="margin-top:8px;font-size:10.5px;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:7px 10px;line-height:1.5;">💡 영수증만 첨부되어 있어요. <b>세부내역서</b>가 있으면 함께 첨부해주세요. (없으면 그대로 제출 가능)</div>':''}
       </div>`).join('')}
       <button class="add-btn" style="margin-top:6px" onclick="addHospital(${m.id})">+ 병원 추가</button>
     </div>`}).join('');
@@ -1121,12 +1284,17 @@ function render(){
 function checkSubmit(){
   const empId=document.getElementById('empId').value.trim(),empName=document.getElementById('empName').value.trim();
   let cnt=0, allValid=true, errorMsg='';
+  const ck={name:null,type:null,conf:null,anyNew:false};
   for(const m of members){
     for(const h of m.hospitals){
       let hCnt=0;
       for(const t of['confirm','receipt','detail']){cnt+=h.docs[t].length;hCnt+=h.docs[t].length}
       if(hCnt>0){
-        if(!h.visitType){allValid=false;errorMsg='신청유형 미선택 병원 있음'}
+        if(!h.name.trim()&&ck.name==null)ck.name=h.id;
+        if(!h.visitType&&ck.type==null)ck.type=h.id;
+        if(h.visitType==='new'){ck.anyNew=true;if(h.docs.confirm.length===0&&ck.conf==null)ck.conf=h.id}
+        if(!h.name.trim()){allValid=false;errorMsg='병원명 미입력'}
+        else if(!h.visitType){allValid=false;errorMsg='신청유형 미선택 병원 있음'}
         else if(h.visitType==='new' && h.docs.confirm.length===0){allValid=false;errorMsg='진단서 미첨부 병원 있음'}
       }
     }
@@ -1144,7 +1312,8 @@ function checkSubmit(){
     if(cnt>0&&!empName){empNameEl.style.borderColor='#DC2626';empNameEl.style.background='#FEF2F2'}
     else{empNameEl.style.borderColor='';empNameEl.style.background=''}
   }
-  document.getElementById('submit-btn').disabled=!(empId&&empName&&cnt>0&&allValid);
+  renderChecklist(empId,empName,cnt,ck);
+  document.getElementById('submit-btn').disabled=submitBusy||!(empId&&empName&&cnt>0&&allValid);
   const tc=document.getElementById('total-count'),tn=document.getElementById('total-num');
   if(cnt>0){
     tc.classList.remove('hidden');tn.innerHTML=cnt+(allValid?'장':'장 <span style=color:#DC2626;font-weight:700>· '+errorMsg+'</span>');
@@ -1168,7 +1337,7 @@ function collectAllImages(){
     for(const h of m.hospitals)
       for(const dt of['confirm','receipt','detail'])
         for(const d of h.docs[dt])
-          all.push({img:d, memberLabel:m.label, hospitalName:h.name||'병원미입력', docType:dtLabels[dt]});
+          all.push({img:d, memberLabel:m.label, hospitalName:(h.name||'').trim()||'병원미입력', docType:dtLabels[dt]});
   return all;
 }
 
@@ -1210,29 +1379,283 @@ function stampBanner(imgData, memberLabel, hospitalName, docType, totalCount){
 
 function buildPDF(imgs,empId,empName){const parts=[];let offset=0;const offsets={};function w(s){const b=strToBytes(s);parts.push(b);offset+=b.length}function wb(b){parts.push(b);offset+=b.length}function mark(n){offsets[n]=offset}const N=imgs.length,A4W=595.28,A4H=841.89;w("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");mark(1);w(`1 0 obj\n<< /Title (${empId}_${empName}) /Creator (MediScan) >>\nendobj\n`);mark(2);w("2 0 obj\n<< /Type /Catalog /Pages 3 0 R >>\nendobj\n");mark(3);w(`3 0 obj\n<< /Type /Pages /Kids [${imgs.map((_,i)=>(4+i*3)+" 0 R").join(" ")}] /Count ${N} >>\nendobj\n`);for(let i=0;i<N;i++){const img=imgs[i],po=4+i*3,co=5+i*3,io=6+i*3;const M=10;const sc=Math.min((A4W-2*M)/img.w,(A4H-2*M)/img.h);const dw=img.w*sc,dh=img.h*sc;const pageW=dw+2*M,pageH=dh+2*M;const x=M,y=M;const cs=`q\n${dw.toFixed(2)} 0 0 ${dh.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm\n/Im Do\nQ\n`;const csB=strToBytes(cs);mark(po);w(`${po} 0 obj\n<< /Type /Page /Parent 3 0 R /MediaBox [0 0 ${pageW.toFixed(2)} ${pageH.toFixed(2)}] /Contents ${co} 0 R /Resources << /XObject << /Im ${io} 0 R >> >> >>\nendobj\n`);mark(co);w(`${co} 0 obj\n<< /Length ${csB.length} >>\nstream\n`);wb(csB);w("\nendstream\nendobj\n");mark(io);w(`${io} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${img.w} /Height ${img.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.jpeg.length} >>\nstream\n`);wb(img.jpeg);w("\nendstream\nendobj\n")}const tot=3+N*3,xo=offset;w(`xref\n0 ${tot+1}\n`);w("0000000000 65535 f \n");for(let i=1;i<=tot;i++)w(`${String(offsets[i]||0).padStart(10,'0')} 00000 n \n`);w(`trailer\n<< /Size ${tot+1} /Root 2 0 R /Info 1 0 R >>\nstartxref\n${xo}\n%%EOF`);let total=0;parts.forEach(p=>total+=p.length);const out=new Uint8Array(total);let pos=0;for(const p of parts){out.set(p,pos);pos+=p.length}return out}
 
-async function handleSubmit(){
+function handleSubmit(){
+  if(submitBusy)return;
+  const empId=sanitizeId(document.getElementById('empId').value),empName=sanitize(document.getElementById('empName').value);
+  if(!empId||!empName||collectAllImages().length===0)return;
+  const dl={confirm:'진단서',receipt:'영수증',detail:'세부내역서'};
+  let total=0,blurTotal=0,html='';
+  for(const m of members){
+    const hs=m.hospitals.filter(hospHasDocs);if(!hs.length)continue;
+    html+=`<div style="font-size:12px;font-weight:800;color:#1E40AF;margin:4px 0 6px;">${escHtml(m.label)}</div>`;
+    for(const h of hs){
+      const parts=[];let blur=0;
+      for(const k of['confirm','receipt','detail']){const n=h.docs[k].length;total+=n;blur+=h.docs[k].filter(d=>d.blurry).length;parts.push(n>0?`${dl[k]} <b>${n}</b>`:`<span style="color:#CBD5E1">${dl[k]} 0</span>`)}
+      blurTotal+=blur;
+      const vt=h.visitType==='new'?'<span style="color:#1D4ED8">🆕 최초신청</span>':'<span style="color:#059669">🔁 재진</span>';
+      html+=`<div class="cf-h"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;"><div style="font-size:13.5px;font-weight:800;color:#0F2940;word-break:break-all;">🏥 ${escHtml(h.name.trim())}</div><div style="font-size:11px;font-weight:700;white-space:nowrap;">${vt}</div></div>
+        <div style="font-size:12px;color:#334155;margin-top:4px;">${parts.join(' · ')}</div>
+        ${h.docs.receipt.length>0&&h.docs.detail.length===0?'<div style="font-size:11px;color:#92400E;margin-top:4px;">💡 세부내역서 없이 영수증만 있어요</div>':''}
+        ${blur>0?`<div style="font-size:11px;color:#DC2626;margin-top:4px;font-weight:600;">⚠ 흐린 사진 ${blur}장</div>`:''}</div>`;
+    }
+  }
+  html+=`<div style="text-align:center;font-size:13px;color:#0F2940;font-weight:700;margin-top:10px;">총 <span style="color:#2563EB">${total}장</span>을 한 개의 PDF로 보냅니다</div>`;
+  if(blurTotal>0)html+=`<div style="margin-top:8px;font-size:11.5px;color:#991B1B;background:#FEF2F2;border:1px solid #FECACA;border-radius:9px;padding:8px 10px;line-height:1.5;">흐린 사진은 글자를 못 읽어 <b>다시 제출 요청</b>이 올 수 있어요. 가능하면 <b>수정하기</b>를 눌러 다시 찍어주세요.</div>`;
+  document.getElementById('cf-who').textContent=empId+' '+empName+' · '+(submitType==='new'?'신규서류':'누락서류');
+  document.getElementById('cf-body').innerHTML=html;
+  document.getElementById('confirm-popup').classList.remove('hidden');
+}
+// ═══ C. 상단 진행 체크리스트 — 빨간 칩을 누르면 문제 위치로 이동 ═══
+function renderChecklist(empId,empName,cnt,ck){
+  const el=document.getElementById('check-chips');if(!el)return;
+  const st=(okCond,active)=>okCond?'ok':(active?'bad':'wait');
+  const chips=[
+    ['사번',st(!!empId,cnt>0),"jumpField('empId')"],
+    ['이름',st(!!empName,cnt>0),"jumpField('empName')"],
+    ['서류'+(cnt?' '+cnt+'장':''),cnt>0?'ok':'wait',"jumpFirstUpload()"],
+    ['병원명',cnt===0?'wait':(ck.name!=null?'bad':'ok'),ck.name!=null?`jumpHospital(${ck.name},true)`:''],
+    ['신청유형',cnt===0?'wait':(ck.type!=null?'bad':'ok'),ck.type!=null?`jumpHospital(${ck.type})`:''],
+  ];
+  if(ck.anyNew)chips.push(['진단서',ck.conf!=null?'bad':'ok',ck.conf!=null?`jumpHospital(${ck.conf})`:'']);
+  el.innerHTML=chips.map(([t,c,fn])=>`<button class="chk ${c}" onclick="${fn}">${c==='ok'?'✓ ':c==='bad'?'! ':''}${t}</button>`).join('');
+}
+function jumpField(id){const e=document.getElementById(id);if(e){e.focus();e.scrollIntoView({behavior:'smooth',block:'center'})}}
+function jumpFirstUpload(){const b=document.querySelector('.doc-upload-btn');if(b)b.scrollIntoView({behavior:'smooth',block:'center'})}
+function jumpHospital(hid,focusName){
+  const c=document.getElementById('hc-'+hid);if(!c)return;
+  c.scrollIntoView({behavior:'smooth',block:'center'});
+  c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');
+  if(focusName){const i=c.querySelector('.hospital-name');if(i)setTimeout(()=>i.focus({preventScroll:true}),450)}
+}
+// ═══ G. 안내선 촬영 (앱 안 카메라) — 영상은 폰 안에서만 처리, 어디에도 저장·전송 안 함 ═══
+let camStream=null,camTrack=null,camCtx=null,camChain=Promise.resolve(),camShots=0,camFocusIv=null,camTorchOn=false,camBusy=false;
+async function openGuideCamera(){
+  const up=pendingUpload;if(!up)return;
+  camCtx={...up};camShots=0;camChain=Promise.resolve();
+  const pop=document.getElementById('cam-popup');pop.classList.remove('hidden');
+  document.getElementById('cam-err').classList.add('hidden');
+  document.getElementById('cam-title').textContent=DOC_NAME[up.type]+' 촬영';
+  document.getElementById('cam-last-img').classList.add('hidden');
+  document.getElementById('cam-count').classList.add('hidden');
+  document.getElementById('cam-focus').classList.add('hidden');
+  document.getElementById('cam-torch').classList.add('hidden');document.getElementById('cam-torch-sp').classList.remove('hidden');
+  layoutGuide();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camError('이 브라우저는 앱 안 카메라를 지원하지 않습니다.');return}
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:3840},height:{ideal:2160}}});
+  }catch(e){
+    camError(e&&e.name==='NotAllowedError'?'카메라 권한이 거부되었습니다.<br>브라우저 설정에서 카메라를 허용하거나<br>아래 기본 카메라를 이용해주세요.':'카메라를 시작하지 못했습니다.');return;
+  }
+  if(document.getElementById('cam-popup').classList.contains('hidden')){stopCamStream();return}
+  camTrack=camStream.getVideoTracks()[0];
+  const v=document.getElementById('cam-video');v.srcObject=camStream;try{await v.play()}catch(_){}
+  try{await camTrack.applyConstraints({advanced:[{focusMode:'continuous'}]})}catch(_){}
+  try{const cap=camTrack.getCapabilities&&camTrack.getCapabilities();if(cap&&cap.torch){document.getElementById('cam-torch').classList.remove('hidden');document.getElementById('cam-torch-sp').classList.add('hidden')}}catch(_){}
+  camFocusIv=setInterval(updateCamFocus,700);
+}
+function camError(msg){document.getElementById('cam-err-msg').innerHTML=msg;document.getElementById('cam-err').classList.remove('hidden')}
+function camFallbackNative(){const c=camCtx;closeGuideCamera(true);if(c){pendingUpload={mid:c.mid,hid:c.hid,type:c.type};lastSource='camera';document.getElementById('cameraInput').click()}}
+function stopCamStream(){
+  if(camFocusIv){clearInterval(camFocusIv);camFocusIv=null}
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}
+  camTrack=null;camTorchOn=false;
+  const v=document.getElementById('cam-video');if(v)v.srcObject=null;
+}
+function layoutGuide(){
+  const pop=document.getElementById('cam-popup');if(pop.classList.contains('hidden'))return;
+  const W=window.innerWidth,H=window.innerHeight,land=W>H;
+  const area=land?{x:0,y:48,w:W-110,h:H-48}:{x:0,y:56,w:W,h:H-56-120};
+  const r=1.414; // A4: 긴 변/짧은 변
+  let gw,gh;
+  if(land){gh=area.h*0.88;gw=gh*r;if(gw>area.w*0.92){gw=area.w*0.92;gh=gw/r}}
+  else{gw=area.w*0.88;gh=gw*r;if(gh>area.h*0.92){gh=area.h*0.92;gw=gh/r}}
+  const g=document.getElementById('cam-guide');
+  g.style.width=gw+'px';g.style.height=gh+'px';
+  g.style.left=(area.x+(area.w-gw)/2)+'px';g.style.top=(area.y+(area.h-gh)/2)+'px';
+  const tip=document.getElementById('cam-tip');
+  tip.style.top=(area.y+(area.h-gh)/2+gh-38)+'px';tip.style.left=(area.x+area.w/2)+'px';
+  tip.textContent=(camCtx&&camCtx.type==='detail'&&!land)?'📱 세부내역서는 폰을 옆으로 눕혀 찍어주세요':'서류 네 귀퉁이를 초록 모서리에 맞춰주세요';
+}
+window.addEventListener('resize',()=>setTimeout(layoutGuide,120));
+function updateCamFocus(){
+  const v=document.getElementById('cam-video');if(!v||!v.videoWidth)return;
+  try{
+    const sc=Math.min(1,1000/Math.min(v.videoWidth,v.videoHeight));
+    const c=document.createElement('canvas');c.width=Math.round(v.videoWidth*sc);c.height=Math.round(v.videoHeight*sc);
+    c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+    const sv=sharpnessScore(c);c.width=0;c.height=0;
+    const f=document.getElementById('cam-focus');f.classList.remove('hidden');
+    if(sv>=BLUR_THRESHOLD){f.textContent='● 선명해요';f.style.color='#6EE7B7'}else{f.textContent='● 흔들려요 · 잠시 멈추세요';f.style.color='#FCA5A5'}
+  }catch(_){}
+}
+async function toggleTorch(){if(!camTrack)return;try{camTorchOn=!camTorchOn;await camTrack.applyConstraints({advanced:[{torch:camTorchOn}]})}catch(_){camTorchOn=false}}
+function camShoot(){
+  const v=document.getElementById('cam-video');if(camBusy||!v||!v.videoWidth||!camCtx)return;
+  camBusy=true;
+  const fl=document.getElementById('cam-flash');fl.style.transition='none';fl.style.opacity='.85';requestAnimationFrame(()=>{fl.style.transition='opacity .3s';fl.style.opacity='0'});
+  if(navigator.vibrate)try{navigator.vibrate(30)}catch(_){}
+  const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const thumb=document.createElement('canvas');const ts=120/Math.max(c.width,c.height);thumb.width=Math.round(c.width*ts);thumb.height=Math.round(c.height*ts);thumb.getContext('2d').drawImage(c,0,0,thumb.width,thumb.height);
+  const li=document.getElementById('cam-last-img');li.src=thumb.toDataURL('image/jpeg',.7);li.classList.remove('hidden');thumb.width=0;
+  camShots++;const cc=document.getElementById('cam-count');cc.textContent=camShots;cc.classList.remove('hidden');
+  const ctx={...camCtx};
+  c.toBlob(blob=>{
+    c.width=0;c.height=0;camBusy=false;
+    if(!blob)return;
+    camChain=camChain.then(()=>processImage(blob)).then(r=>{
+      const m=members.find(x=>x.id===ctx.mid);const h=m&&m.hospitals.find(x=>x.id===ctx.hid);
+      if(h&&r)h.docs[ctx.type].push(r);
+    }).catch(e=>console.error('cam process',e));
+  },'image/jpeg',0.95);
+}
+async function closeGuideCamera(skipWait){
+  const shots=camShots,ctx=camCtx;
+  stopCamStream();
+  if(!skipWait&&shots>0){
+    const d=document.getElementById('cam-done');d.textContent='처리 중...';d.disabled=true;
+    const bar=document.getElementById('proc-bar');bar.classList.remove('hidden');document.getElementById('proc-text').textContent='문서 자동 보정 중... ('+shots+'장)';
+    document.getElementById('cam-popup').classList.add('hidden');
+    try{await camChain}catch(_){}
+    bar.classList.add('hidden');d.textContent='완료';d.disabled=false;
+  }else document.getElementById('cam-popup').classList.add('hidden');
+  camCtx=null;camShots=0;
+  render();checkSubmit();
+  if(!skipWait&&shots>0&&ctx){
+    const m=members.find(x=>x.id===ctx.mid);const h=m&&m.hospitals.find(x=>x.id===ctx.hid);
+    const added=h?h.docs[ctx.type].slice(-shots):[];
+    const nb=added.filter(x=>x&&x.blurry).length;
+    showToast(nb>0?'⚠ '+shots+'장 중 흐린 사진 '+nb+'장 · 빨간 <b>흐림</b> 사진을 탭해 다시 찍어주세요':'✓ '+DOC_NAME[ctx.type]+' '+shots+'장 첨부됨 · 사진을 탭하면 영역 수정',nb>0?5000:3000);
+  }
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&camStream)closeGuideCamera()});
+
+// ═══ D. 썸네일 꾹 눌러 끌어서 순서 바꾸기 (같은 서류 칸 안에서) ═══
+let dragSt=null,suppressThumbClickUntil=0;
+function thumbFromPoint(x,y){const e=document.elementFromPoint(x,y);return e&&e.closest?e.closest('.doc-thumb'):null}
+function dragDown(e,x,y){
+  const t=e.target.closest&&e.target.closest('.doc-thumb');if(!t||e.target.closest('.doc-thumb-del'))return;
+  dragSt={el:t,x0:x,y0:y,active:false,over:null,timer:setTimeout(()=>dragActivate(x,y),380)};
+}
+function dragActivate(x,y){
+  if(!dragSt)return;dragSt.active=true;
+  dragSt.el.classList.add('dragging');
+  const g=document.createElement('div');g.id='drag-ghost';g.innerHTML='<img src="'+dragSt.el.querySelector('img').src+'">';document.body.appendChild(g);
+  g.style.left=x+'px';g.style.top=y+'px';
+  if(navigator.vibrate)try{navigator.vibrate(25)}catch(_){}
+}
+function dragMove(e,x,y){
+  if(!dragSt)return;
+  if(!dragSt.active){if(Math.hypot(x-dragSt.x0,y-dragSt.y0)>10){clearTimeout(dragSt.timer);dragSt=null}return}
+  if(e.cancelable)e.preventDefault();
+  const g=document.getElementById('drag-ghost');if(g){g.style.left=x+'px';g.style.top=y+'px'}
+  const o=thumbFromPoint(x,y);
+  if(dragSt.over&&dragSt.over!==o)dragSt.over.classList.remove('drop-target');
+  if(o&&o!==dragSt.el&&o.dataset.k===dragSt.el.dataset.k){o.classList.add('drop-target');dragSt.over=o}else dragSt.over=null;
+}
+function dragUp(e){
+  if(!dragSt)return;clearTimeout(dragSt.timer);
+  const st=dragSt;dragSt=null;
+  if(!st.active)return;
+  if(e.cancelable)e.preventDefault();
+  suppressThumbClickUntil=Date.now()+500;
+  const g=document.getElementById('drag-ghost');if(g)g.remove();
+  st.el.classList.remove('dragging');
+  if(st.over){
+    st.over.classList.remove('drop-target');
+    const [mid,hid,type]=st.el.dataset.k.split('|');const from=+st.el.dataset.i,to=+st.over.dataset.i;
+    const m=members.find(x=>x.id===+mid);const h=m&&m.hospitals.find(x=>x.id===+hid);
+    if(h){const arr=h.docs[type];const [it]=arr.splice(from,1);arr.splice(to,0,it);render();checkSubmit();showToast('순서를 바꿨어요 ('+(from+1)+'번 → '+(to+1)+'번)',1800)}
+  }
+}
+(function(){
+  const area=document.getElementById('members-area');
+  area.addEventListener('touchstart',e=>{if(e.touches.length===1)dragDown(e,e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+  document.addEventListener('touchmove',e=>{if(dragSt)dragMove(e,e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+  document.addEventListener('touchend',dragUp,{passive:false});
+  document.addEventListener('touchcancel',dragUp);
+  area.addEventListener('mousedown',e=>{if(e.button===0)dragDown(e,e.clientX,e.clientY)});
+  document.addEventListener('mousemove',e=>{if(dragSt)dragMove(e,e.clientX,e.clientY)});
+  document.addEventListener('mouseup',dragUp);
+  area.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.doc-thumb'))e.preventDefault()});
+})();
+function closeSubmitConfirm(){document.getElementById('confirm-popup').classList.add('hidden')}
+
+// 서버 응답을 실제로 읽어서 저장 성공 여부를 확인한다.
+// text/plain 본문 = '단순 요청'이라 CORS 사전요청(OPTIONS) 없이 Apps Script로 바로 간다.
+// (주의: xhr.upload에 이벤트를 달면 사전요청이 생겨 실패하므로 달지 않는다)
+function postAndVerify(bodyStr){
+  return new Promise(resolve=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST',APPS_SCRIPT_URL,true);
+    xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');
+    xhr.timeout=300000;
+    xhr.onload=()=>{
+      let j=null;try{j=JSON.parse(xhr.responseText)}catch(_){}
+      if(xhr.status===200&&j&&j.success===true)resolve({ok:true,res:j});
+      else resolve({ok:false,why:j&&j.message?'서버 오류':('응답 코드 '+xhr.status)});
+    };
+    xhr.onerror=()=>resolve({ok:false,why:'네트워크 연결 실패'});
+    xhr.ontimeout=()=>resolve({ok:false,why:'응답 시간 초과'});
+    try{xhr.send(bodyStr)}catch(e){resolve({ok:false,why:'전송 시작 실패'})}
+  });
+}
+
+async function doSubmit(){
+  if(submitBusy)return;
   const empId=sanitizeId(document.getElementById('empId').value),empName=sanitize(document.getElementById('empName').value);
   const allItems=collectAllImages();if(!empId||!empName||allItems.length===0)return;
+  submitBusy=true;
   const btn=document.getElementById('submit-btn'),txt=document.getElementById('submit-text');
-  btn.disabled=true;txt.innerHTML='<span class="spinner-w"></span> PDF 생성 중... ('+allItems.length+'장)';
-  await new Promise(r=>setTimeout(r,200));
-  // 배너 스탬프 적용
-  const stampedImages=[];
-  for(let si=0;si<allItems.length;si++){
-    txt.innerHTML='<span class="spinner-w"></span> 보정 중... ('+(si+1)+'/'+allItems.length+')';
-    const item=allItems[si];
-    const stamped=await stampBanner(item.img, item.memberLabel, item.hospitalName, item.docType, allItems.length);
-    stampedImages.push(stamped);
-  }
-  const pdfImages=stampedImages.map(img=>({jpeg:dataUrlToUint8(img.processed),w:img.width,h:img.height}));
-  const pdfBytes=buildPDF(pdfImages,empId,empName);
-  const pdfBase64=u8ToB64(pdfBytes);
-  const typeLabel=submitType==='new'?'신규서류':'누락서류';
-  txt.innerHTML='<span class="spinner-w"></span> 암호화 전송 중... ('+allItems.length+'장)';
-  try{const iframeName='msf_'+Date.now();const iframe=document.createElement('iframe');iframe.name=iframeName;iframe.style.display='none';document.body.appendChild(iframe);const form=document.createElement('form');form.method='POST';form.action=APPS_SCRIPT_URL;form.target=iframeName;form.style.display='none';const input=document.createElement('input');input.type='hidden';input.name='data';input.value=JSON.stringify({empId,empName,pdfData:pdfBase64,typeLabel});form.appendChild(input);document.body.appendChild(form);form.submit();const waitTime=Math.max(6000,allItems.length*1500);await new Promise(r=>setTimeout(r,waitTime));try{document.body.removeChild(form)}catch(_){}try{document.body.removeChild(iframe)}catch(_){}}catch(err){console.error(err)}
-  document.getElementById('complete-name').textContent=empId+' '+empName;
-  document.getElementById('complete-popup').classList.remove('hidden');
+  btn.disabled=true;
+  try{
+    if(!pendingPayload||pendingPayload.key!==payloadKey(empId,empName,allItems)){
+      txt.innerHTML='<span class="spinner-w"></span> PDF 생성 중... ('+allItems.length+'장)';
+      await new Promise(r=>setTimeout(r,200));
+      const stampedImages=[];
+      for(let si=0;si<allItems.length;si++){
+        txt.innerHTML='<span class="spinner-w"></span> 보정 중... ('+(si+1)+'/'+allItems.length+')';
+        const item=allItems[si];
+        stampedImages.push(await stampBanner(item.img,item.memberLabel,item.hospitalName,item.docType,allItems.length));
+      }
+      const pdfImages=stampedImages.map(img=>({jpeg:dataUrlToUint8(img.processed),w:img.width,h:img.height}));
+      const pdfBase64=u8ToB64(buildPDF(pdfImages,empId,empName));
+      const typeLabel=submitType==='new'?'신규서류':'누락서류';
+      const submitId=makeSubmitId();
+      pendingPayload={submitId,key:payloadKey(empId,empName,allItems),body:JSON.stringify({empId,empName,pdfData:pdfBase64,typeLabel,submitId,pageCount:allItems.length})};
+    }
+    const t0=Date.now();
+    const tick=()=>{txt.innerHTML='<span class="spinner-w"></span> 전송 중... '+Math.round((Date.now()-t0)/1000)+'초 <span style="font-size:11px;opacity:.8">(화면을 끄지 마세요)</span>'};
+    tick();const iv=setInterval(tick,1000);
+    const r=await postAndVerify(pendingPayload.body);
+    clearInterval(iv);
+    if(r.ok){
+      document.getElementById('complete-receipt').textContent=pendingPayload.submitId;
+      pendingPayload=null;
+      document.getElementById('complete-name').textContent=empId+' '+empName;
+      document.getElementById('complete-popup').classList.remove('hidden');
+    }else{
+      document.getElementById('fail-detail').textContent='사유: '+r.why;
+      document.getElementById('fail-popup').classList.remove('hidden');
+      txt.textContent='다시 전송하기';
+      btn.disabled=false;checkSubmit();
+    }
+  }catch(err){
+    console.error(err);
+    document.getElementById('fail-detail').textContent='사유: PDF 생성 오류';
+    document.getElementById('fail-popup').classList.remove('hidden');
+    txt.textContent='다시 전송하기';
+    btn.disabled=false;checkSubmit();
+  }finally{submitBusy=false}
 }
+// 내용이 바뀌지 않았으면 이미 만든 PDF를 재사용 (재전송 시 동일 접수번호 유지)
+function payloadKey(empId,empName,items){return empId+'|'+empName+'|'+submitType+'|'+items.map(i=>i.img.id+':'+i.hospitalName+':'+i.docType+':'+i.memberLabel+':'+(i.img.processed||'').length).join(',')}
+// 접수번호: 날짜(MMDD) + 헷갈리는 글자(0/O/1/I) 뺀 4자리. 재전송 시에도 같은 번호 유지
+function makeSubmitId(){
+  const d=new Date(),A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r=new Uint8Array(4);crypto.getRandomValues(r);
+  return String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Array.from(r,x=>A[x%A.length]).join('');
+}
+function retrySubmit(){document.getElementById('fail-popup').classList.add('hidden');doSubmit()}
 
 window.addEventListener('beforeunload',secureCleanup);
 
