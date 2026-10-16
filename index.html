@@ -1210,6 +1210,7 @@ function reviewMore(){pendingUpload={mid:reviewCtx.mid,hid:reviewCtx.hid,type:re
 let camStream=null,camTrack=null,camCtx=null,camChain=Promise.resolve(),camShots=0,camFocusIv=null,camTorchOn=false,camBusy=false;
 async function openGuideCamera(){
   const up=pendingUpload;if(!up)return;
+  camPhotoOff=false;camPhotoSettings=null;
   camCtx={...up,replace:camReplaceDoc,added:[]};camReplaceDoc=null;camShots=0;camChain=Promise.resolve();
   const pop=document.getElementById('cam-popup');pop.classList.remove('hidden');
   document.getElementById('cam-err').classList.add('hidden');
@@ -1276,8 +1277,8 @@ function guideRectNorm(v){
   const mx=-2,my=-2; // 여유분 없음: 흰 테두리 안쪽 선 기준으로 딱 맞춰 자름
   let x0=(gr.left-mx-offX)/sc/vw,y0=(gr.top-my-offY)/sc/vh,x1=(gr.right+mx-offX)/sc/vw,y1=(gr.bottom+my-offY)/sc/vh;
   x0=Math.max(0,x0);y0=Math.max(0,y0);x1=Math.min(1,x1);y1=Math.min(1,y1);
-  if(!(x1-x0>0.1&&y1-y0>0.1))return{x:0,y:0,w:1,h:1,va:vw/vh};
-  return{x:x0,y:y0,w:x1-x0,h:y1-y0,va:vw/vh};
+  if(!(x1-x0>0.1&&y1-y0>0.1))return{x:0,y:0,w:1,h:1,va:vw/vh,vw,vh};
+  return{x:x0,y:y0,w:x1-x0,h:y1-y0,va:vw/vh,vw,vh};
 }
 function cropToCanvas(src,SW,SH,r){
   // src 안에서 r(정규화) 영역을 잘라 긴 변 2400px 이하로
@@ -1287,12 +1288,22 @@ function cropToCanvas(src,SW,SH,r){
   const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(src,sx,sy,sw,sh,0,0,c.width,c.height);
   return c;
 }
+let camPhotoSettings=null;
 async function capturePhotoCanvas(r){
-  // 폰 카메라의 '사진 찍기' 기능 사용 → 동영상 캡처보다 훨씬 선명
+  // 폰 카메라의 '사진 찍기' 기능 사용. 단, 결과가 동영상 화면보다 해상도가 낮으면 쓰지 않음
   if(camPhotoOff||typeof ImageCapture==='undefined'||!camTrack)return null;
+  const timeout=ms=>new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),ms));
   try{
     const ic=new ImageCapture(camTrack);
-    const blob=await Promise.race([ic.takePhoto(),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout')),6000))]);
+    // 기본값이 저해상도인 폰이 있어 최대 해상도를 명시적으로 요청
+    if(camPhotoSettings===null){
+      camPhotoSettings={};
+      try{const pc=await Promise.race([ic.getPhotoCapabilities(),timeout(2000)]);
+        if(pc&&pc.imageWidth&&pc.imageWidth.max&&pc.imageHeight&&pc.imageHeight.max)camPhotoSettings={imageWidth:pc.imageWidth.max,imageHeight:pc.imageHeight.max}}catch(_){}
+    }
+    let blob;
+    try{blob=await Promise.race([ic.takePhoto(camPhotoSettings),timeout(6000)])}
+    catch(e){if(Object.keys(camPhotoSettings).length){camPhotoSettings={};blob=await Promise.race([ic.takePhoto(),timeout(6000)])}else throw e}
     const bmp=await createImageBitmap(blob);
     const PW=bmp.width,PH=bmp.height,pa=PW/PH;
     // 영상과 사진의 가로/세로 방향이 다르면 위치 계산이 어긋나므로 포기
@@ -1301,6 +1312,9 @@ async function capturePhotoCanvas(r){
     let ox=0,oy=0,vw=PW,vh=PH;
     if(pa>r.va){vw=PH*r.va;ox=(PW-vw)/2}else{vh=PW/r.va;oy=(PH-vh)/2}
     const rr={x:(ox+r.x*vw)/PW,y:(oy+r.y*vh)/PH,w:r.w*vw/PW,h:r.h*vh/PH};
+    // 사진에서 잘라낼 크기가 동영상에서 잘라낼 크기보다 작으면 → 화질이 오히려 떨어지므로 동영상 사용
+    const photoPx=rr.w*PW*rr.h*PH,videoPx=r.w*r.vw*r.h*r.vh;
+    if(photoPx<videoPx*1.15){bmp.close&&bmp.close();camPhotoOff=true;console.log('사진 해상도가 낮아 영상 캡처 사용',PW,PH);return null}
     const c=cropToCanvas(bmp,PW,PH,rr);bmp.close&&bmp.close();
     return c;
   }catch(e){console.log('takePhoto 미지원 → 영상 캡처 사용:',e&&e.name);camPhotoOff=true;return null}
