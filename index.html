@@ -117,6 +117,21 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 #cam-focus{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;background:rgba(0,0,0,.45)}
 #cam-tip{position:absolute;left:50%;transform:translateX(-50%);color:#fff;font-size:12.5px;font-weight:600;background:rgba(0,0,0,.55);padding:6px 12px;border-radius:14px;white-space:nowrap;pointer-events:none}
 #cam-err{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:24px;background:#0C1929}
+#review-popup{position:fixed;inset:0;z-index:190;background:#F1F5F9;display:flex;flex-direction:column}
+#rv-head{background:#0C1929;color:#fff;padding:14px 16px 12px;text-align:center}
+#rv-body{flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.rv-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(15,23,42,.08);border:2px solid transparent}
+.rv-card.blurry{border-color:#DC2626}
+.rv-img{position:relative;aspect-ratio:3/4;background:#1E293B;cursor:pointer}
+.rv-img img{width:100%;height:100%;object-fit:contain;display:block}
+.rv-no{position:absolute;top:6px;left:6px;background:rgba(15,23,42,.75);color:#fff;font-size:11px;font-weight:800;padding:2px 7px;border-radius:10px}
+.rv-blur{position:absolute;left:0;right:0;bottom:0;background:rgba(220,38,38,.92);color:#fff;font-size:11px;font-weight:700;padding:5px 6px;text-align:center}
+.rv-edited{position:absolute;top:6px;right:6px;background:#3B82F6;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:8px}
+.rv-btns{display:flex;border-top:1px solid #F1F5F9}
+.rv-btns button{flex:1;padding:9px 0;font-size:11.5px;font-weight:700;background:#fff;border:none;font-family:inherit;cursor:pointer;color:#334155}
+.rv-btns button+button{border-left:1px solid #F1F5F9}
+.rv-btns .rv-del{color:#DC2626}
+#rv-foot{background:#fff;border-top:1px solid #E2E8F0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px}
 .cf-h{border:1px solid #E2E8F0;border-radius:10px;padding:9px 11px;margin-bottom:7px;text-align:left}
 .doc-thumb-warn{position:absolute;bottom:-3px;left:-3px;background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:6px;border:1.5px solid #fff;line-height:1.2;pointer-events:none}
 .doc-thumb-scanned{position:absolute;bottom:-3px;left:-3px;background:#10B981;color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:6px;border:1.5px solid #fff;line-height:1.2;pointer-events:none}
@@ -316,6 +331,18 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
+<div id="review-popup" class="hidden">
+  <div id="rv-head">
+    <div id="rv-title" style="font-size:16px;font-weight:800;"></div>
+    <div style="font-size:11.5px;color:#CBD5E1;margin-top:3px;">흐리거나 배경이 많이 보이면 고쳐주세요 · 사진을 누르면 크게 수정</div>
+  </div>
+  <div id="rv-body"></div>
+  <div id="rv-foot">
+    <button onclick="reviewMore()" style="flex:1;padding:13px;font-size:14px;font-weight:700;color:#1D4ED8;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;font-family:inherit;">📷 더 찍기</button>
+    <button onclick="closeReview()" style="flex:1.5;padding:13px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#059669,#10B981);border:none;border-radius:12px;font-family:inherit;box-shadow:0 4px 12px rgba(16,185,129,.3);">이대로 첨부 ✓</button>
+  </div>
+</div>
+
 <div id="cam-popup" class="hidden">
   <video id="cam-video" playsinline muted autoplay></video>
   <div id="cam-guide"><i></i><i></i><i></i><i></i></div>
@@ -445,7 +472,7 @@ function closeCompletePopup(){document.getElementById('complete-popup').classLis
 
 function agreeAndStart(){showScreen('main-screen');initState();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
 function resetTimer(){document.getElementById('timeout-warn').classList.add('hidden');if(warningTimer)clearTimeout(warningTimer);if(sessionTimer)clearTimeout(sessionTimer);warningTimer=setTimeout(()=>document.getElementById('timeout-warn').classList.remove('hidden'),SESSION_TIMEOUT_MS-60000);sessionTimer=setTimeout(()=>{secureCleanup();releaseWakeLock();initState();showScreen('consent-screen')},SESSION_TIMEOUT_MS)}
-function secureCleanup(){pendingPayload=null;try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
+function secureCleanup(){pendingPayload=null;reviewCtx=null;try{document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML=''}catch(_){}try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
 
 function setType(type){submitType=type;document.getElementById('type-new').className='sticky-type-btn'+(type==='new'?' active-new':'');document.getElementById('type-sup').className='sticky-type-btn'+(type==='supplement'?' active-sup':'')}
 
@@ -894,6 +921,11 @@ function openCropEditor(mid,hid,type,idx){
 function retakeCurrent(){
   askMoreAfterEdit=null;
   const{mid,hid,type,idx}=cropCtx;
+  if(reviewCtx){
+    const m=members.find(x=>x.id===mid),h=m&&m.hospitals.find(x=>x.id===hid),d=h&&h.docs[type][idx];
+    closeCropEditor();
+    if(d){reviewRetakeDoc(d);return}
+  }
   closeCropEditor();
   removeDoc(mid,hid,type,idx);
   openSourcePicker(mid,hid,type);
@@ -1283,9 +1315,8 @@ async function handleFileInput(input){
       bar.classList.add('hidden');
       render();checkSubmit();
       if(files.length>1){
-        const added=h.docs[type].slice(-files.length);
-        const nb=added.filter(d=>d&&d.blurry).length;
-        if(nb>0)showToast('⚠ 흐린 사진 '+nb+'장이 있어요<br><span style="font-weight:500;font-size:12px">빨간 <b>흐림</b> 표시 사진을 탭해서 다시 찍어주세요</span>',5000);
+        const added=h.docs[type].slice(-files.length).filter(Boolean);
+        if(added.length)openReview({mid,hid,type},added);
       }
       // 단일 사진 업로드 시 자동으로 영역 편집 화면 표시
       if(files.length===1&&firstAddedIdx!==-1){
@@ -1305,6 +1336,7 @@ document.getElementById('cameraInput').addEventListener('change',function(){hand
 const DOC_TYPES=[{key:'confirm',icon:'📄',label:'진단서/진료확인서'},{key:'receipt',icon:'🧾',label:'영수증'},{key:'detail',icon:'📑',label:'세부내역서'}];
 
 function render(){
+  if(reviewCtx)setTimeout(renderReview,0);
   document.getElementById('members-area').innerHTML=members.map(m=>{
     const isF=m.isFamily;
     return`<div class="member-card ${isF?'family':''}">
@@ -1486,14 +1518,46 @@ function jumpHospital(hid,focusName){
   c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');
   if(focusName){const i=c.querySelector('.hospital-name');if(i)setTimeout(()=>i.focus({preventScroll:true}),450)}
 }
+// ═══ 찍은 사진 확인 화면 — 연속 촬영/여러 장 선택 후 크게 보여주고 수정·다시찍기·삭제 ═══
+let reviewCtx=null,camReplaceDoc=null;
+function reviewH(){if(!reviewCtx)return null;const m=members.find(x=>x.id===reviewCtx.mid);return m&&m.hospitals.find(x=>x.id===reviewCtx.hid)}
+function openReview(ctx,docs){
+  if(reviewCtx&&reviewCtx.mid===ctx.mid&&reviewCtx.hid===ctx.hid&&reviewCtx.type===ctx.type){reviewCtx.items.push(...docs)}
+  else reviewCtx={mid:ctx.mid,hid:ctx.hid,type:ctx.type,items:[...docs]};
+  document.getElementById('review-popup').classList.remove('hidden');
+  renderReview();
+}
+function renderReview(){
+  if(!reviewCtx)return;
+  const h=reviewH();if(!h){closeReview();return}
+  const arr=h.docs[reviewCtx.type];
+  reviewCtx.items=reviewCtx.items.filter(d=>arr.includes(d));
+  if(!reviewCtx.items.length){closeReview();return}
+  const nb=reviewCtx.items.filter(d=>d.blurry).length;
+  document.getElementById('rv-title').innerHTML=DOC_NAME[reviewCtx.type]+' 확인 ('+reviewCtx.items.length+'장)'+(nb?' <span style="color:#FCA5A5;font-size:13px">· 흐림 '+nb+'장</span>':'');
+  document.getElementById('rv-body').innerHTML=reviewCtx.items.map((d,i)=>`<div class="rv-card${d.blurry?' blurry':''}">
+    <div class="rv-img" onclick="reviewEdit(${i})"><img src="${d.processed}"><div class="rv-no">${arr.indexOf(d)+1}</div>${d.manuallyEdited?'<div class="rv-edited">✎ 수정함</div>':''}${d.blurry?'<div class="rv-blur">⚠ 흐려요 · 다시 찍어주세요</div>':''}</div>
+    <div class="rv-btns"><button onclick="reviewEdit(${i})">✏️ 수정</button><button onclick="reviewRetake(${i})">🔄 다시</button><button class="rv-del" onclick="reviewDelete(${i})">🗑 삭제</button></div>
+  </div>`).join('');
+}
+function closeReview(){reviewCtx=null;document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML='';render();checkSubmit()}
+function reviewEdit(i){const h=reviewH();if(!h)return;const idx=h.docs[reviewCtx.type].indexOf(reviewCtx.items[i]);if(idx>=0)openCropEditor(reviewCtx.mid,reviewCtx.hid,reviewCtx.type,idx)}
+function reviewDelete(i){const h=reviewH();if(!h)return;const idx=h.docs[reviewCtx.type].indexOf(reviewCtx.items[i]);if(idx>=0)removeDoc(reviewCtx.mid,reviewCtx.hid,reviewCtx.type,idx)}
+function reviewRetake(i){const d=reviewCtx&&reviewCtx.items[i];if(d)reviewRetakeDoc(d)}
+function reviewRetakeDoc(d){
+  pendingUpload={mid:reviewCtx.mid,hid:reviewCtx.hid,type:reviewCtx.type};
+  camReplaceDoc=d;lastSource='guide';openGuideCamera();
+}
+function reviewMore(){pendingUpload={mid:reviewCtx.mid,hid:reviewCtx.hid,type:reviewCtx.type};camReplaceDoc=null;lastSource='guide';openGuideCamera()}
+
 // ═══ G. 안내선 촬영 (앱 안 카메라) — 영상은 폰 안에서만 처리, 어디에도 저장·전송 안 함 ═══
 let camStream=null,camTrack=null,camCtx=null,camChain=Promise.resolve(),camShots=0,camFocusIv=null,camTorchOn=false,camBusy=false;
 async function openGuideCamera(){
   const up=pendingUpload;if(!up)return;
-  camCtx={...up};camShots=0;camChain=Promise.resolve();
+  camCtx={...up,replace:camReplaceDoc,added:[]};camReplaceDoc=null;camShots=0;camChain=Promise.resolve();
   const pop=document.getElementById('cam-popup');pop.classList.remove('hidden');
   document.getElementById('cam-err').classList.add('hidden');
-  document.getElementById('cam-title').textContent=DOC_NAME[up.type]+' 촬영';
+  document.getElementById('cam-title').textContent=DOC_NAME[up.type]+(camCtx.replace?' 다시 찍기':' 촬영');
   document.getElementById('cam-last-img').classList.add('hidden');
   document.getElementById('cam-count').classList.add('hidden');
   document.getElementById('cam-focus').classList.add('hidden');
@@ -1565,15 +1629,22 @@ function camShoot(){
   const thumb=document.createElement('canvas');const ts=120/Math.max(c.width,c.height);thumb.width=Math.round(c.width*ts);thumb.height=Math.round(c.height*ts);thumb.getContext('2d').drawImage(c,0,0,thumb.width,thumb.height);
   const li=document.getElementById('cam-last-img');li.src=thumb.toDataURL('image/jpeg',.7);li.classList.remove('hidden');thumb.width=0;
   camShots++;const cc=document.getElementById('cam-count');cc.textContent=camShots;cc.classList.remove('hidden');
-  const ctx={...camCtx};
+  const ctx=camCtx,replace=ctx.replace;
+  if(replace)ctx.replace=null; // 다시 찍기는 한 장만 교체
   c.toBlob(blob=>{
     c.width=0;c.height=0;camBusy=false;
     if(!blob)return;
     camChain=camChain.then(()=>processImage(blob)).then(r=>{
       const m=members.find(x=>x.id===ctx.mid);const h=m&&m.hospitals.find(x=>x.id===ctx.hid);
-      if(h&&r)h.docs[ctx.type].push(r);
+      if(!h||!r)return;
+      const arr=h.docs[ctx.type],at=replace?arr.indexOf(replace):-1;
+      if(at>=0){
+        arr.splice(at,1,r);replace.original=null;replace.processed=null;
+        if(reviewCtx){const k=reviewCtx.items.indexOf(replace);if(k>=0)reviewCtx.items[k]=r}
+      }else{arr.push(r);ctx.added.push(r)}
     }).catch(e=>console.error('cam process',e));
   },'image/jpeg',0.95);
+  if(replace)setTimeout(()=>closeGuideCamera(),250);
 }
 async function closeGuideCamera(skipWait){
   const shots=camShots,ctx=camCtx;
@@ -1587,11 +1658,9 @@ async function closeGuideCamera(skipWait){
   }else document.getElementById('cam-popup').classList.add('hidden');
   camCtx=null;camShots=0;
   render();checkSubmit();
-  if(!skipWait&&shots>0&&ctx){
-    const m=members.find(x=>x.id===ctx.mid);const h=m&&m.hospitals.find(x=>x.id===ctx.hid);
-    const added=h?h.docs[ctx.type].slice(-shots):[];
-    const nb=added.filter(x=>x&&x.blurry).length;
-    showToast(nb>0?'⚠ '+shots+'장 중 흐린 사진 '+nb+'장 · 빨간 <b>흐림</b> 사진을 탭해 다시 찍어주세요':'✓ '+DOC_NAME[ctx.type]+' '+shots+'장 첨부됨 · 사진을 탭하면 영역 수정',nb>0?5000:3000);
+  if(!skipWait&&ctx){
+    if(ctx.added.length)openReview(ctx,ctx.added);
+    else if(reviewCtx)renderReview();
   }
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&camStream)closeGuideCamera()});
