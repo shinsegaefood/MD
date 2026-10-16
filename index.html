@@ -140,8 +140,6 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 .proc{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#FFF7ED;border-radius:10px;font-size:12.5px;font-weight:600;color:#C2410C;margin-top:8px}
 .spinner{width:16px;height:16px;border:2.5px solid #FDBA74;border-top-color:#C2410C;border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0}
 </style>
-<script async src="https://docs.opencv.org/4.8.0/opencv.js" referrerpolicy="no-referrer" onload="onOpenCvReady()" onerror="cvLoadFailed=true"></script>
-<script src="https://cdn.jsdelivr.net/gh/puffinsoft/jscanify@1.2.0/src/jscanify.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 <div class="container" id="app">
@@ -190,7 +188,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
       <button class="add-btn add-member-btn" onclick="addMember()">+ 가족 추가 (배우자, 자녀 등)</button>
       <div id="total-count" class="hidden" style="text-align:center;font-size:12px;color:#64748B;padding:4px 0;">총 첨부: <span id="total-num">0</span></div>
       <div id="scan-warn" class="hidden" style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:9px 13px;font-size:11.5px;color:#9A3412;line-height:1.5;">⚠ 문서 자동 보정 기능을 불러오지 못했습니다. 사진을 최대한 반듯하게 촬영해 주세요.</div>
-      <div id="proc-bar" class="proc hidden"><div class="spinner"></div><span id="proc-text">문서 자동 보정 중...</span></div>
+      <div id="proc-bar" class="proc hidden"><div class="spinner"></div><span id="proc-text">사진 처리 중...</span></div>
 
       <button class="submit" id="submit-btn" disabled onclick="handleSubmit()">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -241,10 +239,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
     </div>
     <div style="padding:14px 20px;display:flex;flex-direction:column;gap:8px;">
       <button onclick="pickSource('guide')" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;font-size:14px;font-weight:700;color:#047857;background:#ECFDF5;border:1.5px solid #A7F3D0;border-radius:12px;font-family:inherit;text-align:left;">
-        <span style="font-size:22px;">📐</span><div><div>안내선 보며 촬영</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px;">반듯하게 찍기 쉬움 · 여러 장 연속 촬영</div></div>
-      </button>
-      <button onclick="pickSource('camera')" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;font-size:14px;font-weight:700;color:#1D4ED8;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;font-family:inherit;text-align:left;">
-        <span style="font-size:22px;">📷</span><div><div>카메라로 촬영</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px;">서류를 직접 촬영</div></div>
+        <span style="font-size:22px;">📷</span><div><div>카메라로 촬영</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px;">안내선에 맞춰 · 여러 장 연속 촬영</div></div>
       </button>
       <button onclick="pickSource('gallery')" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;font-size:14px;font-weight:700;color:#7C3AED;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:12px;font-family:inherit;text-align:left;">
         <span style="font-size:22px;">📁</span><div><div>갤러리에서 선택</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px;">여러 장 선택 가능</div></div>
@@ -448,7 +443,7 @@ function confirmPrivacyAlert(){closePrivacyAlert();agreeAndStart();setTimeout(()
 function closeOrderPopup(){document.getElementById('order-popup').classList.add('hidden')}
 function closeCompletePopup(){document.getElementById('complete-popup').classList.add('hidden');secureCleanup();releaseWakeLock();initState();document.getElementById('empId').value='';document.getElementById('empName').value='';document.getElementById('submit-text').textContent='PDF 변환 및 전송';checkSubmit()}
 
-function agreeAndStart(){showScreen('main-screen');initState();resetTimer();requestWakeLock();setTimeout(()=>{if(cvLoadFailed||!opencvReady){const el=document.getElementById('scan-warn');if(el&&cvLoadFailed)el.classList.remove('hidden')}},8000);['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
+function agreeAndStart(){showScreen('main-screen');initState();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
 function resetTimer(){document.getElementById('timeout-warn').classList.add('hidden');if(warningTimer)clearTimeout(warningTimer);if(sessionTimer)clearTimeout(sessionTimer);warningTimer=setTimeout(()=>document.getElementById('timeout-warn').classList.remove('hidden'),SESSION_TIMEOUT_MS-60000);sessionTimer=setTimeout(()=>{secureCleanup();releaseWakeLock();initState();showScreen('consent-screen')},SESSION_TIMEOUT_MS)}
 function secureCleanup(){pendingPayload=null;try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
 
@@ -481,6 +476,23 @@ function setVisitType(mid,hid,type){const m=members.find(x=>x.id===mid);if(m){co
 function removeDoc(mid,hid,type,idx){const m=members.find(x=>x.id===mid);if(m){const h=m.hospitals.find(x=>x.id===hid);if(h){const d=h.docs[type][idx];if(d){d.original=null;d.processed=null}h.docs[type].splice(idx,1);render();checkSubmit()}}}
 
 let opencvReady=false, cvLoadFailed=false;
+// 보정 엔진(약 8MB)은 '영역 자동잡기'를 처음 누를 때만 받는다
+let cvLoading=null;
+function loadScript(src,attrs){return new Promise((ok,ng)=>{const e=document.createElement('script');e.src=src;e.async=true;e.referrerPolicy='no-referrer';if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);e.onload=()=>ok();e.onerror=()=>ng(new Error('load '+src));document.head.appendChild(e)})}
+function loadCV(){
+  if(opencvReady)return Promise.resolve(true);
+  if(cvLoading)return cvLoading;
+  cvLoading=(async()=>{
+    try{
+      await loadScript('https://docs.opencv.org/4.8.0/opencv.js');
+      onOpenCvReady();
+      const t0=Date.now();while(!opencvReady&&Date.now()-t0<30000)await new Promise(r=>setTimeout(r,200));
+      try{await loadScript('https://cdn.jsdelivr.net/gh/puffinsoft/jscanify@1.2.0/src/jscanify.min.js',{crossorigin:'anonymous'})}catch(_){}
+      return opencvReady;
+    }catch(e){cvLoadFailed=true;cvLoading=null;return false}
+  })();
+  return cvLoading;
+}
 function onOpenCvReady(){
   if(typeof cv!=='undefined'){
     if(cv.Mat)opencvReady=true;
@@ -759,7 +771,7 @@ function processImage(file){
         const resizedImg=new Image();
         resizedImg.onload=()=>{
           // 2단계: 문서 자동 감지 + 원근 보정 시도
-          const scannedCanvas=autoScan(resizedImg);
+          const scannedCanvas=null; // 자동 펴기 사용 안 함 — 찍은 그대로, 필요하면 직원이 편집 화면에서 조정
           let finalCanvas;
           let wasScanned=false;
           if(scannedCanvas&&scannedCanvas.width>100&&scannedCanvas.height>100){
@@ -867,12 +879,9 @@ function openCropEditor(mid,hid,type,idx){
           if(d.blurry){
             hint.textContent='⚠ 사진이 흐립니다 · 글자가 안 보이면 아래 "다시 찍기"를 눌러주세요';
             hint.style.color='#FCA5A5';
-          }else if(d.scanned){
-            hint.textContent='✓ 자동으로 반듯하게 폈습니다 · 그대로 적용하셔도 됩니다';
-            hint.style.color='#6EE7B7';
           }else{
-            hint.textContent='자동 보정이 되지 않았습니다 · 필요하면 모서리를 맞춰주세요';
-            hint.style.color='#FCD34D';
+            hint.textContent='배경이 많이 보이면 네 모서리를 서류에 맞춰주세요';
+            hint.style.color='#CBD5E1';
           }
         }
         drawCrop();
@@ -934,10 +943,16 @@ function tryAutoDetect(){
   return false;
 }
 
-function resetToAuto(){
+async function resetToAuto(){
+  if(!opencvReady){
+    showToast('자동잡기 준비 중... (처음 한 번만 몇 초 걸려요)',8000);
+    const ready=await loadCV();
+    document.getElementById('ms-toast')&&document.getElementById('ms-toast').classList.add('hidden');
+    if(!ready){alert('자동잡기 기능을 불러오지 못했습니다.\n네 모서리를 직접 드래그해서 영역을 지정해주세요.');return}
+    if(!cropCtx.img)return;
+  }
   const ok=tryAutoDetect();
   if(!ok){
-    if(!opencvReady){alert('자동 감지 기능이 아직 준비되지 않았습니다.\n잠시 후 다시 시도하거나, 네 모서리를 직접 드래그해서 영역을 지정해주세요.');return}
     alert('문서 모서리를 찾을 수 없습니다.\n네 모서리를 직접 드래그해서 영역을 지정해주세요.');
     return;
   }
@@ -1072,13 +1087,57 @@ function cropMove(e){
 
 function cropEnd(){cropCtx.dragIdx=-1}
 
+// 네 모서리(c) → 직사각형으로 펴기. 출력 픽셀마다 원본 위치를 역계산해 쌍선형 보간
+function solveHomography(src,dst){ // dst[i] → src[i] 로 보내는 3x3
+  const A=[],b=[];
+  for(let i=0;i<4;i++){const{x:u,y:v}=dst[i],{x,y}=src[i];
+    A.push([u,v,1,0,0,0,-u*x,-v*x]);b.push(x);
+    A.push([0,0,0,u,v,1,-u*y,-v*y]);b.push(y)}
+  for(let i=0;i<8;i++){
+    let mx=i;for(let r=i+1;r<8;r++)if(Math.abs(A[r][i])>Math.abs(A[mx][i]))mx=r;
+    [A[i],A[mx]]=[A[mx],A[i]];[b[i],b[mx]]=[b[mx],b[i]];
+    const piv=A[i][i];if(Math.abs(piv)<1e-12)throw new Error('singular');
+    for(let r=0;r<8;r++){if(r===i)continue;const f=A[r][i]/piv;if(!f)continue;for(let k=i;k<8;k++)A[r][k]-=f*A[i][k];b[r]-=f*b[i]}
+  }
+  const h=b.map((v,i)=>v/A[i][i]);h.push(1);return h;
+}
+function warpQuadJS(img,c){
+  const d=(a,b2)=>Math.hypot(a.x-b2.x,a.y-b2.y);
+  const w=Math.round(Math.max(d(c[0],c[1]),d(c[3],c[2]))),h=Math.round(Math.max(d(c[0],c[3]),d(c[1],c[2])));
+  if(w<10||h<10)throw new Error('too small');
+  const sc=document.createElement('canvas');sc.width=img.width;sc.height=img.height;
+  const sctx=sc.getContext('2d');sctx.drawImage(img,0,0);
+  const S=sctx.getImageData(0,0,sc.width,sc.height),sd=S.data,SW=sc.width,SH=sc.height;sc.width=0;
+  const H=solveHomography(c,[{x:0,y:0},{x:w,y:0},{x:w,y:h},{x:0,y:h}]);
+  const out=document.createElement('canvas');out.width=w;out.height=h;
+  const octx=out.getContext('2d'),O=octx.createImageData(w,h),od=O.data;
+  for(let v=0;v<h;v++){
+    const vv=v+0.5;
+    for(let u=0;u<w;u++){
+      const uu=u+0.5,den=H[6]*uu+H[7]*vv+H[8];
+      let x=(H[0]*uu+H[1]*vv+H[2])/den-0.5,y=(H[3]*uu+H[4]*vv+H[5])/den-0.5;
+      const o=(v*w+u)*4;
+      if(x<0)x=0;else if(x>SW-1.001)x=SW-1.001;
+      if(y<0)y=0;else if(y>SH-1.001)y=SH-1.001;
+      const x0=x|0,y0=y|0,fx=x-x0,fy=y-y0,i00=(y0*SW+x0)*4,i10=i00+4,i01=i00+SW*4,i11=i01+4;
+      const w00=(1-fx)*(1-fy),w10=fx*(1-fy),w01=(1-fx)*fy,w11=fx*fy;
+      od[o]=sd[i00]*w00+sd[i10]*w10+sd[i01]*w01+sd[i11]*w11;
+      od[o+1]=sd[i00+1]*w00+sd[i10+1]*w10+sd[i01+1]*w01+sd[i11+1]*w11;
+      od[o+2]=sd[i00+2]*w00+sd[i10+2]*w10+sd[i01+2]*w01+sd[i11+2]*w11;
+      od[o+3]=255;
+    }
+  }
+  octx.putImageData(O,0,0);
+  return{canvas:out,w,h};
+}
 function applyCrop(){
   if(!cropCtx.img){alert('이미지가 준비되지 않았습니다.');return}
   try{
     const c=cropCtx.corners;
     let outCanvas;let outW,outH;
-    // OpenCV.js 사용 가능하면 원근 보정 적용
-    if(opencvReady&&typeof cv!=='undefined'){
+    // 자체 원근 보정 (보정 엔진 없이 동작)
+    try{const r=warpQuadJS(cropCtx.img,c);outCanvas=r.canvas;outW=r.w;outH=r.h}catch(e){console.log('js warp fail:',e);outCanvas=null}
+    if(!outCanvas&&opencvReady&&typeof cv!=='undefined'){
       try{
         const tmpCanvas=document.createElement('canvas');
         tmpCanvas.width=cropCtx.img.width;tmpCanvas.height=cropCtx.img.height;
@@ -1215,7 +1274,7 @@ async function handleFileInput(input){
     if(h){
       const files=Array.from(input.files).filter(f=>f.type.startsWith('image/'));
       for(let i=0;i<files.length;i++){
-        pt.textContent=files.length>1?`문서 자동 보정 중... (${i+1}/${files.length})`:'문서 자동 보정 중...';
+        pt.textContent=files.length>1?`사진 처리 중... (${i+1}/${files.length})`:'사진 처리 중...';
         const r=await processImage(files[i]);
         h.docs[type].push(r);
         if(firstAddedIdx===-1)firstAddedIdx=h.docs[type].length-1;
@@ -1274,7 +1333,7 @@ function render(){
           <div class="doc-icon">${dt.icon}</div>
           <div class="doc-info"><div class="doc-label">${dt.label}${isRequired?'<span style="color:#DC2626;font-size:10px;margin-left:4px;">*필수</span>':''}</div><div class="doc-count">${cnt>0?'<span style=color:#059669;font-weight:700>✓ '+cnt+'장 첨부</span>':isRequired?'<span style=color:#DC2626;font-weight:600>미첨부</span>':'<span style=color:#94A3B8>선택</span>'}</div></div>
           <button class="doc-upload-btn" onclick="openSourcePicker(${m.id},${h.id},'${dt.key}')">📷 첨부</button>
-          ${cnt>0?`<div class="doc-thumbs">${docs.map((d,di)=>`<div class="doc-thumb${d.blurry?' blurry':''}" data-k="${m.id}|${h.id}|${dt.key}" data-i="${di}" onclick="if(Date.now()>suppressThumbClickUntil)openCropEditor(${m.id},${h.id},'${dt.key}',${di})" style="cursor:pointer" title="탭하여 영역 조정"><img src="${d.processed}">${d.blurry?'<div class="doc-thumb-blur">흐림</div>':''}<div class="doc-thumb-del" onclick="event.stopPropagation();removeDoc(${m.id},${h.id},'${dt.key}',${di})">✕</div>${d.scanned?'<div class="doc-thumb-scanned">스캔</div>':'<div class="doc-thumb-warn">보정필요</div>'}${d.manuallyEdited?'<div class="doc-thumb-edit">✎</div>':''}</div>`).join('')}<div style="width:100%;font-size:10px;color:#94A3B8;margin-top:2px;">💡 탭: 영역 수정${cnt>1?' · 꾹 눌러 끌기: 순서 변경':''}</div>${docs.some(d=>d.blurry)?'<div style="width:100%;font-size:10.5px;color:#DC2626;font-weight:600;margin-top:2px;">⚠ 흐린 사진이 있어요 · 탭해서 다시 찍기를 권장합니다</div>':''}</div>`:''}</div>`}).join('')}</div>
+          ${cnt>0?`<div class="doc-thumbs">${docs.map((d,di)=>`<div class="doc-thumb${d.blurry?' blurry':''}" data-k="${m.id}|${h.id}|${dt.key}" data-i="${di}" onclick="if(Date.now()>suppressThumbClickUntil)openCropEditor(${m.id},${h.id},'${dt.key}',${di})" style="cursor:pointer" title="탭하여 영역 조정"><img src="${d.processed}">${d.blurry?'<div class="doc-thumb-blur">흐림</div>':''}<div class="doc-thumb-del" onclick="event.stopPropagation();removeDoc(${m.id},${h.id},'${dt.key}',${di})">✕</div>${d.manuallyEdited?'<div class="doc-thumb-edit">✎</div>':''}</div>`).join('')}<div style="width:100%;font-size:10px;color:#94A3B8;margin-top:2px;">💡 탭: 영역 수정${cnt>1?' · 꾹 눌러 끌기: 순서 변경':''}</div>${docs.some(d=>d.blurry)?'<div style="width:100%;font-size:10.5px;color:#DC2626;font-weight:600;margin-top:2px;">⚠ 흐린 사진이 있어요 · 탭해서 다시 찍기를 권장합니다</div>':''}</div>`:''}</div>`}).join('')}</div>
         ${h.docs.receipt.length>0&&h.docs.detail.length===0?'<div style="margin-top:8px;font-size:10.5px;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:7px 10px;line-height:1.5;">💡 영수증만 첨부되어 있어요. <b>세부내역서</b>가 있으면 함께 첨부해주세요. (없으면 그대로 제출 가능)</div>':''}
       </div>`).join('')}
       <button class="add-btn" style="margin-top:6px" onclick="addHospital(${m.id})">+ 병원 추가</button>
@@ -1494,8 +1553,15 @@ function camShoot(){
   camBusy=true;
   const fl=document.getElementById('cam-flash');fl.style.transition='none';fl.style.opacity='.85';requestAnimationFrame(()=>{fl.style.transition='opacity .3s';fl.style.opacity='0'});
   if(navigator.vibrate)try{navigator.vibrate(30)}catch(_){}
-  const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;
-  c.getContext('2d').drawImage(v,0,0);
+  // 화면에 보이는 안내선 영역을 실제 영상 좌표로 환산해 그 부분만 저장 (가장자리 2% 여유)
+  const vw=v.videoWidth,vh=v.videoHeight,vr=v.getBoundingClientRect(),gr=document.getElementById('cam-guide').getBoundingClientRect();
+  const sc=Math.max(vr.width/vw,vr.height/vh),offX=vr.left+(vr.width-vw*sc)/2,offY=vr.top+(vr.height-vh*sc)/2;
+  const mx=gr.width*0.02,my=gr.height*0.02;
+  let sx=(gr.left-mx-offX)/sc,sy=(gr.top-my-offY)/sc,sw=(gr.width+2*mx)/sc,sh=(gr.height+2*my)/sc;
+  sx=Math.max(0,sx);sy=Math.max(0,sy);sw=Math.min(vw-sx,sw);sh=Math.min(vh-sy,sh);
+  if(!(sw>50&&sh>50)){sx=0;sy=0;sw=vw;sh=vh}
+  const c=document.createElement('canvas');c.width=Math.round(sw);c.height=Math.round(sh);
+  c.getContext('2d').drawImage(v,sx,sy,sw,sh,0,0,c.width,c.height);
   const thumb=document.createElement('canvas');const ts=120/Math.max(c.width,c.height);thumb.width=Math.round(c.width*ts);thumb.height=Math.round(c.height*ts);thumb.getContext('2d').drawImage(c,0,0,thumb.width,thumb.height);
   const li=document.getElementById('cam-last-img');li.src=thumb.toDataURL('image/jpeg',.7);li.classList.remove('hidden');thumb.width=0;
   camShots++;const cc=document.getElementById('cam-count');cc.textContent=camShots;cc.classList.remove('hidden');
@@ -1514,7 +1580,7 @@ async function closeGuideCamera(skipWait){
   stopCamStream();
   if(!skipWait&&shots>0){
     const d=document.getElementById('cam-done');d.textContent='처리 중...';d.disabled=true;
-    const bar=document.getElementById('proc-bar');bar.classList.remove('hidden');document.getElementById('proc-text').textContent='문서 자동 보정 중... ('+shots+'장)';
+    const bar=document.getElementById('proc-bar');bar.classList.remove('hidden');document.getElementById('proc-text').textContent='사진 처리 중... ('+shots+'장)';
     document.getElementById('cam-popup').classList.add('hidden');
     try{await camChain}catch(_){}
     bar.classList.add('hidden');d.textContent='완료';d.disabled=false;
