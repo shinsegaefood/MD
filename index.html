@@ -128,7 +128,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 .rv-blur{position:absolute;left:0;right:0;bottom:0;background:rgba(220,38,38,.92);color:#fff;font-size:11px;font-weight:700;padding:5px 6px;text-align:center}
 .rv-edited{position:absolute;top:6px;right:6px;background:#3B82F6;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:8px}
 .rv-btns{display:flex;border-top:1px solid #F1F5F9}
-.rv-btns button{flex:1;padding:9px 0;font-size:11.5px;font-weight:700;background:#fff;border:none;font-family:inherit;cursor:pointer;color:#334155}
+.rv-btns button{flex:1;padding:7px 0 6px;font-size:10.5px;line-height:1.25;font-weight:700;background:#fff;border:none;font-family:inherit;cursor:pointer;color:#334155}
 .rv-btns button+button{border-left:1px solid #F1F5F9}
 .rv-btns .rv-del{color:#DC2626}
 #rv-foot{background:#fff;border-top:1px solid #E2E8F0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px}
@@ -332,6 +332,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 <div id="review-popup" class="hidden">
   <div id="rv-head">
     <div id="rv-title" style="font-size:16px;font-weight:800;"></div>
+    <button onclick="reviewRotateAll()" style="margin-top:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:999px;font-family:inherit;cursor:pointer;">↻ 모두 90° 회전</button>
     <div style="font-size:11.5px;color:#CBD5E1;margin-top:3px;">흐리거나 배경이 많이 보이면 고쳐주세요 · 사진을 누르면 크게 수정</div>
   </div>
   <div id="rv-body"></div>
@@ -1193,10 +1194,31 @@ function renderReview(){
   document.getElementById('rv-title').innerHTML=DOC_NAME[reviewCtx.type]+' 확인 ('+reviewCtx.items.length+'장)'+(nb?' <span style="color:#FCA5A5;font-size:13px">· 흐림 '+nb+'장</span>':'');
   document.getElementById('rv-body').innerHTML=reviewCtx.items.map((d,i)=>`<div class="rv-card${d.blurry?' blurry':''}">
     <div class="rv-img" onclick="reviewEdit(${i})"><img src="${d.processed}"><div class="rv-no">${arr.indexOf(d)+1}</div>${d.manuallyEdited?'<div class="rv-edited">✎ 수정함</div>':''}${d.blurry?'<div class="rv-blur">⚠ 흐려요 · 다시 찍어주세요</div>':''}</div>
-    <div class="rv-btns"><button onclick="reviewEdit(${i})">✏️ 수정</button><button onclick="reviewRetake(${i})">🔄 다시</button><button class="rv-del" onclick="reviewDelete(${i})">🗑 삭제</button></div>
+    <div class="rv-btns"><button onclick="reviewRotate(${i})"><span style="font-size:15px">↻</span><br>회전</button><button onclick="reviewEdit(${i})"><span style="font-size:13px">✏️</span><br>수정</button><button onclick="reviewRetake(${i})"><span style="font-size:13px">📷</span><br>다시</button><button class="rv-del" onclick="reviewDelete(${i})"><span style="font-size:13px">🗑</span><br>삭제</button></div>
   </div>`).join('');
 }
 function closeReview(){reviewCtx=null;document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML='';render();checkSubmit()}
+// 사진 한 장을 시계 방향 90° 회전 (원본·편집본 모두)
+function rotateDataUrl(src){
+  return new Promise(res=>{const im=new Image();im.onload=()=>{const c=rotateCanvas(im,90);const u=c.toDataURL('image/jpeg',0.95);const w=c.width,h=c.height;c.width=0;c.height=0;res({u,w,h})};im.onerror=()=>res(null);im.src=src});
+}
+async function rotateDoc(d){
+  const r=await rotateDataUrl(d.processed);if(!r)return;
+  if(d.original&&d.original!==d.processed){const o=await rotateDataUrl(d.original);if(o)d.original=o.u}else d.original=r.u;
+  d.processed=r.u;d.width=r.w;d.height=r.h;
+}
+let rotating=false;
+async function reviewRotate(i){
+  if(rotating||!reviewCtx)return;const d=reviewCtx.items[i];if(!d)return;
+  rotating=true;try{await rotateDoc(d)}finally{rotating=false}
+  renderReview();
+}
+async function reviewRotateAll(){
+  if(rotating||!reviewCtx)return;rotating=true;
+  showToast('회전 중...',1500);
+  try{for(const d of reviewCtx.items.slice())await rotateDoc(d)}finally{rotating=false}
+  renderReview();
+}
 function reviewEdit(i){const h=reviewH();if(!h)return;const idx=h.docs[reviewCtx.type].indexOf(reviewCtx.items[i]);if(idx>=0)openCropEditor(reviewCtx.mid,reviewCtx.hid,reviewCtx.type,idx)}
 function reviewDelete(i){const h=reviewH();if(!h)return;const idx=h.docs[reviewCtx.type].indexOf(reviewCtx.items[i]);if(idx>=0)removeDoc(reviewCtx.mid,reviewCtx.hid,reviewCtx.type,idx)}
 function reviewRetake(i){const d=reviewCtx&&reviewCtx.items[i];if(d)reviewRetakeDoc(d)}
@@ -1208,8 +1230,38 @@ function reviewMore(){pendingUpload={mid:reviewCtx.mid,hid:reviewCtx.hid,type:re
 
 // ═══ G. 안내선 촬영 (앱 안 카메라) — 영상은 폰 안에서만 처리, 어디에도 저장·전송 안 함 ═══
 let camStream=null,camTrack=null,camCtx=null,camChain=Promise.resolve(),camShots=0,camFocusIv=null,camTorchOn=false,camBusy=false;
+// ═══ 기울기 센서: 셔터 순간 폰이 옆으로 눕혀져 있으면 사진을 그만큼 돌려서 저장 ═══
+// (자동 회전이 꺼져 있으면 화면은 세로로 고정되어 있어서, 센서로만 알 수 있음)
+const IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let tiltG=null,tiltOn=false;
+function onMotion(e){
+  const a=e.accelerationIncludingGravity;if(!a||a.x==null||a.y==null)return;
+  let x=a.x,y=a.y;if(IS_IOS){x=-x;y=-y} // 아이폰은 부호가 반대
+  tiltG=tiltG?{x:tiltG.x*0.6+x*0.4,y:tiltG.y*0.6+y*0.4}:{x,y}; // 손떨림 완화
+}
+function startTilt(){
+  if(tiltOn)return;tiltG=null;
+  const go=()=>{window.addEventListener('devicemotion',onMotion);tiltOn=true};
+  try{
+    // 아이폰: 버튼을 누른 그 순간에 권한 요청해야 함 (처음 한 번만 창이 뜸)
+    if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
+      DeviceMotionEvent.requestPermission().then(r=>{if(r==='granted')go()}).catch(()=>{});
+    }else go();
+  }catch(_){}
+}
+function stopTilt(){window.removeEventListener('devicemotion',onMotion);tiltOn=false;tiltG=null}
+// 찍은 사진을 몇 도 돌려야 바로 서는지 (0 / 90 / 270)
+function tiltRotation(){
+  if(window.innerWidth>window.innerHeight)return 0; // 화면이 이미 가로로 돌아가 있으면 사진도 가로라 그대로
+  const g=tiltG;if(!g)return 0;
+  const ax=Math.abs(g.x),ay=Math.abs(g.y);
+  if(ax<2.5||ax<ay*1.3)return 0; // 확실히 옆으로 눕힌 경우만
+  return g.x>0?270:90; // 위쪽이 왼쪽으로 → 반시계로 돌림 / 오른쪽으로 → 시계로 돌림
+}
+
 async function openGuideCamera(){
   const up=pendingUpload;if(!up)return;
+  startTilt();
   camPhotoOff=false;camPhotoSettings=null;
   camCtx={...up,replace:camReplaceDoc,added:[]};camReplaceDoc=null;camShots=0;camChain=Promise.resolve();
   const pop=document.getElementById('cam-popup');pop.classList.remove('hidden');
@@ -1236,6 +1288,7 @@ async function openGuideCamera(){
 function camError(msg){document.getElementById('cam-err-msg').innerHTML=msg;document.getElementById('cam-err').classList.remove('hidden')}
 function camFallbackNative(){const c=camCtx;closeGuideCamera(true);if(c){pendingUpload={mid:c.mid,hid:c.hid,type:c.type};lastSource='camera';document.getElementById('cameraInput').click()}}
 function stopCamStream(){
+  stopTilt();
   if(camFocusIv){clearInterval(camFocusIv);camFocusIv=null}
   if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}
   camTrack=null;camTorchOn=false;
@@ -1326,12 +1379,14 @@ async function camShoot(){
   const fl=document.getElementById('cam-flash');fl.style.transition='none';fl.style.opacity='.85';requestAnimationFrame(()=>{fl.style.transition='opacity .3s';fl.style.opacity='0'});
   if(navigator.vibrate)try{navigator.vibrate(30)}catch(_){}
   const r=guideRectNorm(v);
+  const rot=tiltRotation(); // 셔터 누른 순간의 폰 방향
   const ctx=camCtx,replace=ctx.replace;
   if(replace)ctx.replace=null; // 다시 찍기는 한 장만 교체
   setShutterBusy(true);
   camPending=(async()=>{
     let c=await capturePhotoCanvas(r),fromPhoto=!!c;
     if(!c)c=cropToCanvas(v,v.videoWidth,v.videoHeight,r);
+    if(rot){const rc=rotateCanvas(c,rot);c.width=0;c.height=0;c=rc}
     const thumb=document.createElement('canvas');const ts=120/Math.max(c.width,c.height);thumb.width=Math.round(c.width*ts);thumb.height=Math.round(c.height*ts);thumb.getContext('2d').drawImage(c,0,0,thumb.width,thumb.height);
     const li=document.getElementById('cam-last-img');li.src=thumb.toDataURL('image/jpeg',.7);li.classList.remove('hidden');thumb.width=0;
     camShots++;const cc=document.getElementById('cam-count');cc.textContent=camShots;cc.classList.remove('hidden');
