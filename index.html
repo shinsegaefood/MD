@@ -1113,16 +1113,19 @@ function collectAllImages(){
 
 function stampBanner(imgData, memberLabel, hospitalName, docType, totalCount){
   return new Promise(async resolve=>{
-    // 장수에 따라 자동 품질 조절
-    const recomp = await recompressForSend(imgData.processed, totalCount);
+    // 화질 고정: 긴 변 2000px, JPEG 90% — 배너를 얹으면서 한 번만 압축 (중복 압축 없음)
+    const SEND_MAX=2000,SEND_Q=0.90;
     const img=new Image();
     img.onload=()=>{
+      let iw=img.width,ih=img.height;
+      if(iw>SEND_MAX||ih>SEND_MAX){const k=SEND_MAX/Math.max(iw,ih);iw=Math.round(iw*k);ih=Math.round(ih*k)}
+      const recomp={width:iw,height:ih};
       const canvas=document.createElement('canvas');
-      const bannerH=Math.max(90, Math.round(img.height*0.07));
+      const bannerH=Math.max(90, Math.round(ih*0.07));
       const sepH=6;
       const totalHeader=bannerH+sepH;
-      canvas.width=img.width;
-      canvas.height=img.height+totalHeader;
+      canvas.width=iw;
+      canvas.height=ih+totalHeader;
       const ctx=canvas.getContext('2d');
       ctx.fillStyle='#162D50';
       ctx.fillRect(0,0,canvas.width,bannerH);
@@ -1133,17 +1136,13 @@ function stampBanner(imgData, memberLabel, hospitalName, docType, totalCount){
       ctx.fillText(text, 24, bannerH/2+fontSize/3);
       ctx.fillStyle='#3B82F6';
       ctx.fillRect(0,bannerH,canvas.width,sepH);
-      ctx.drawImage(img,0,totalHeader);
-      let outQuality=0.82;
-      if(totalCount<=5)outQuality=0.90;
-      else if(totalCount<=15)outQuality=0.82;
-      else if(totalCount<=30)outQuality=0.72;
-      else outQuality=0.62;
-      const result=canvas.toDataURL('image/jpeg',outQuality);
+      ctx.imageSmoothingQuality='high';
+      ctx.drawImage(img,0,totalHeader,iw,ih);
+      const result=canvas.toDataURL('image/jpeg',SEND_Q);
       canvas.width=0;canvas.height=0;
       resolve({processed:result,width:recomp.width,height:recomp.height+totalHeader});
     };
-    img.src=recomp.processed;
+    img.src=imgData.processed;
   });
 }
 
