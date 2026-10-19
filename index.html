@@ -925,7 +925,7 @@ function useOriginal(){
     const tmpCanvas=document.createElement('canvas');
     tmpCanvas.width=img.width;tmpCanvas.height=img.height;
     tmpCanvas.getContext('2d').drawImage(img,0,0);
-    d.processed=tmpCanvas.toDataURL('image/jpeg',0.92);
+    d.processed=d.original; // 원본 그대로 (다시 압축하지 않음)
     d.width=img.width;d.height=img.height;
     d.scanned=false;
     d.manuallyEdited=false; // 다음 편집 시 원본 기준으로 시작
@@ -1568,15 +1568,15 @@ async function doSubmit(){
       }
       const pdfImages=stampedImages.map(img=>({jpeg:dataUrlToUint8(img.processed),w:img.width,h:img.height}));
       const pdfBytes=buildPDF(pdfImages,empId,empName);
-      // 구글이 파일 1개로 만들 수 있는 한도(50MB) 직전에서 미리 안내
-      if(pdfBytes.length>48*1024*1024){
+      // 이어 올리기로 사실상 제한 없음. 폰 메모리 보호용 상한(약 280MB, 300장 이상)만 둠
+      if(pdfBytes.length>280*1024*1024){
         const mb=Math.round(pdfBytes.length/1024/1024);
-        throw Object.assign(new Error('too_big'),{userMsg:'서류가 너무 많아 한 번에 보낼 수 없어요 (약 '+mb+'MB). 서류를 두 번에 나눠 제출해 주세요. (예: 1차 신규서류 / 2차 누락서류)'});
+        throw Object.assign(new Error('too_big'),{userMsg:'서류가 너무 많아 보낼 수 없어요 (약 '+mb+'MB). 등기로 제출해 주세요.'});
       }
       const pdfBase64=u8ToB64(pdfBytes);
       const typeLabel=submitType==='new'?'신규서류':'누락서류';
       const submitId=makeSubmitId();
-      pendingPayload={submitId,key:payloadKey(empId,empName,allItems),meta:{empId,empName,typeLabel,submitId,pageCount:allItems.length},b64:pdfBase64};
+      pendingPayload={submitId,size:pdfBytes.length,key:payloadKey(empId,empName,allItems),meta:{empId,empName,typeLabel,submitId,pageCount:allItems.length},b64:pdfBase64};
     }
     let r;
     const P=pendingPayload;
@@ -1600,7 +1600,7 @@ async function doSubmit(){
     }else{
       // 큰 파일: 조각으로 나눠 보내고, 구글 쪽에서 PDF 1개로 합침
       for(let i=0;i<total;i++){
-        r=await postAndVerify(JSON.stringify({...P.meta,chunkIndex:i,chunkTotal:total,totalBytes:Math.round(P.b64.length*0.75),chunk:P.b64.slice(i*CHUNK,(i+1)*CHUNK)}));
+        r=await postAndVerify(JSON.stringify({...P.meta,chunkIndex:i,chunkTotal:total,totalBytes:P.size,chunk:P.b64.slice(i*CHUNK,(i+1)*CHUNK)}));
         if(!r.ok||(r.res&&r.res.dup))break;
         segDone();
       }
@@ -1632,7 +1632,8 @@ async function doSubmit(){
 // 내용이 바뀌지 않았으면 이미 만든 PDF를 재사용 (재전송 시 동일 접수번호 유지)
 function payloadKey(empId,empName,items){return empId+'|'+empName+'|'+submitType+'|'+items.map(i=>i.img.id+':'+i.hospitalName+':'+i.docType+':'+i.memberLabel+':'+(i.img.processed||'').length).join(',')}
 // 전송 크기: 약 30MB 이하는 한 번에, 그보다 크면 10MB(텍스트 기준) 조각으로
-let SINGLE_MAX=40*1024*1024,CHUNK=10*1024*1024; // 4의 배수 → 조각을 이어 붙이면 원본과 동일
+// CHUNK(글자 수) = 10MB → 실제 7,864,320바이트 = 구글 이어 올리기 단위(256KB)의 30배. Apps Script의 CHUNK_BYTES와 반드시 같아야 함
+let SINGLE_MAX=40*1024*1024,CHUNK=10*1024*1024;
 
 // ═══ 담당자 저장 공간 가득 참 안내 ═══
 function showStorageFull(){document.getElementById('storage-popup').classList.remove('hidden')}
