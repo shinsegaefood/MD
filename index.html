@@ -115,6 +115,13 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 #cam-count{position:absolute;top:-8px;right:-8px;background:#2563EB;color:#fff;font-size:11px;font-weight:800;min-width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 4px}
 #cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .25s}
 #cam-focus{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;background:rgba(0,0,0,.45)}
+#cam-mode{position:absolute;left:50%;transform:translateX(-50%);display:flex;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px;gap:2px;z-index:2}
+#cam-mode button{border:none;background:transparent;color:#CBD5E1;font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:999px;font-family:inherit;cursor:pointer}
+#cam-mode button.on{background:#fff;color:#0F172A}
+.cam-mark{position:absolute;top:0;bottom:0;width:34px;background:rgba(16,185,129,.88);display:flex;align-items:center;justify-content:center;overflow:visible}
+.cam-mark span{display:block;white-space:nowrap;color:#fff;font-size:13px;font-weight:800;letter-spacing:.5px}
+.cam-mark.l{left:0;border-radius:6px 0 0 6px}.cam-mark.l span{transform:rotate(-90deg)}
+.cam-mark.r{right:0;border-radius:0 6px 6px 0}.cam-mark.r span{transform:rotate(90deg)}
 #cam-tip{position:absolute;left:50%;transform:translateX(-50%);color:#fff;font-size:12.5px;font-weight:600;background:rgba(0,0,0,.55);padding:6px 12px;border-radius:14px;white-space:nowrap;pointer-events:none}
 #cam-err{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:24px;background:#0C1929}
 #review-popup{position:fixed;inset:0;z-index:190;background:#F1F5F9;display:flex;flex-direction:column}
@@ -344,7 +351,8 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 
 <div id="cam-popup" class="hidden">
   <video id="cam-video" playsinline muted autoplay></video>
-  <div id="cam-guide"><i></i><i></i><i></i><i></i></div>
+  <div id="cam-guide"><i></i><i></i><i></i><i></i><div id="cam-mark" class="cam-mark l hidden"><span>▲ 서류 윗부분</span></div></div>
+  <div id="cam-mode"><button id="cam-mode-p" onclick="setDocMode('portrait')">세로 문서</button><button id="cam-mode-l" onclick="setDocMode('landscape')">가로 문서</button></div>
   <div id="cam-tip"></div>
   <div id="cam-flash"></div>
   <div id="cam-top">
@@ -1238,6 +1246,29 @@ function onMotion(e){
   const a=e.accelerationIncludingGravity;if(!a||a.x==null||a.y==null)return;
   let x=a.x,y=a.y;if(IS_IOS){x=-x;y=-y} // 아이폰은 부호가 반대
   tiltG=tiltG?{x:tiltG.x*0.6+x*0.4,y:tiltG.y*0.6+y*0.4}:{x,y}; // 손떨림 완화
+  // 폰을 옆으로 돌리는 순간(아직 기울어 있을 때) 어느 쪽으로 돌렸는지 기억 → 평평하게 내려 찍어도 유지
+  const gx=tiltG.x,gy=tiltG.y;
+  if(Math.hypot(gx,gy)>3&&Math.abs(gx)>Math.abs(gy)*1.3){
+    const side=gx<0?'left':'right'; // 시계 방향으로 돌림 → 화면 왼쪽이 위 / 반시계 → 오른쪽이 위
+    if(side!==camSide){camSide=side;updateDocMark()}
+  }
+}
+// ═══ 가로/세로 문서 모드 ═══
+// 가로 문서를 세로 화면에서 찍으면 서류가 옆으로 눕게 됨 → 초록 띠(서류 윗부분) 위치대로 돌려서 저장
+let camDocMode='portrait',camSide='left';
+function setDocMode(m){camDocMode=m;updateDocMark();layoutGuide()}
+function docSideways(){const screenPortrait=window.innerHeight>=window.innerWidth;return screenPortrait!==(camDocMode==='portrait')}
+function updateDocMark(){
+  const p=document.getElementById('cam-mode-p'),l=document.getElementById('cam-mode-l'),mk=document.getElementById('cam-mark');
+  if(p)p.className=camDocMode==='portrait'?'on':'';if(l)l.className=camDocMode==='landscape'?'on':'';
+  if(!mk)return;
+  const side=window.innerHeight>=window.innerWidth?camSide:'left';
+  mk.className='cam-mark '+(side==='right'?'r':'l')+(docSideways()?'':' hidden');
+}
+function computeRot(){
+  if(!docSideways())return 0;
+  if(window.innerWidth>window.innerHeight)return 90; // 화면이 가로로 돌아간 상태
+  return camSide==='right'?270:90;
 }
 function startTilt(){
   if(tiltOn)return;tiltG=null;
@@ -1250,17 +1281,10 @@ function startTilt(){
   }catch(_){}
 }
 function stopTilt(){window.removeEventListener('devicemotion',onMotion);tiltOn=false;tiltG=null}
-// 찍은 사진을 몇 도 돌려야 바로 서는지 (0 / 90 / 270)
-function tiltRotation(){
-  if(window.innerWidth>window.innerHeight)return 0; // 화면이 이미 가로로 돌아가 있으면 사진도 가로라 그대로
-  const g=tiltG;if(!g)return 0;
-  const ax=Math.abs(g.x),ay=Math.abs(g.y);
-  if(ax<2.5||ax<ay*1.3)return 0; // 확실히 옆으로 눕힌 경우만
-  return g.x>0?270:90; // 위쪽이 왼쪽으로 → 반시계로 돌림 / 오른쪽으로 → 시계로 돌림
-}
 
 async function openGuideCamera(){
   const up=pendingUpload;if(!up)return;
+  camDocMode=up.type==='detail'?'landscape':'portrait';camSide='left';
   startTilt();
   camPhotoOff=false;camPhotoSettings=null;
   camCtx={...up,replace:camReplaceDoc,added:[]};camReplaceDoc=null;camShots=0;camChain=Promise.resolve();
@@ -1297,7 +1321,8 @@ function stopCamStream(){
 function layoutGuide(){
   const pop=document.getElementById('cam-popup');if(pop.classList.contains('hidden'))return;
   const W=window.innerWidth,H=window.innerHeight,land=W>H;
-  const area=land?{x:0,y:48,w:W-110,h:H-48}:{x:0,y:56,w:W,h:H-56-120};
+  const area=land?{x:0,y:92,w:W-110,h:H-92}:{x:0,y:104,w:W,h:H-104-120};
+  const md=document.getElementById('cam-mode');if(md)md.style.top=(land?48:58)+'px',md.style.left=(land?(W-110)/2:W/2)+'px';
   const r=1.414; // A4: 긴 변/짧은 변
   let gw,gh;
   if(land){gh=area.h*0.88;gw=gh*r;if(gw>area.w*0.92){gw=area.w*0.92;gh=gw/r}}
@@ -1307,7 +1332,8 @@ function layoutGuide(){
   g.style.left=(area.x+(area.w-gw)/2)+'px';g.style.top=(area.y+(area.h-gh)/2)+'px';
   const tip=document.getElementById('cam-tip');
   tip.style.top=(area.y+(area.h-gh)/2+gh-38)+'px';tip.style.left=(area.x+area.w/2)+'px';
-  tip.textContent=(camCtx&&camCtx.type==='detail'&&!land)?'📱 세부내역서는 폰을 옆으로 눕혀 찍어주세요':'서류 네 귀퉁이를 초록 모서리에 맞춰주세요';
+  updateDocMark();
+  tip.textContent=docSideways()?'초록 띠 쪽에 서류 윗부분을 맞춰주세요':'서류 네 귀퉁이를 초록 모서리에 맞춰주세요';
 }
 window.addEventListener('resize',()=>setTimeout(layoutGuide,120));
 function updateCamFocus(){
@@ -1379,7 +1405,7 @@ async function camShoot(){
   const fl=document.getElementById('cam-flash');fl.style.transition='none';fl.style.opacity='.85';requestAnimationFrame(()=>{fl.style.transition='opacity .3s';fl.style.opacity='0'});
   if(navigator.vibrate)try{navigator.vibrate(30)}catch(_){}
   const r=guideRectNorm(v);
-  const rot=tiltRotation(); // 셔터 누른 순간의 폰 방향
+  const rot=computeRot(); // 가로 문서 모드 + 초록 띠 위치 기준
   const ctx=camCtx,replace=ctx.replace;
   if(replace)ctx.replace=null; // 다시 찍기는 한 장만 교체
   setShutterBusy(true);
