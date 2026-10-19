@@ -394,6 +394,18 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
+<div id="storage-popup" class="overlay hidden">
+  <div style="background:#fff;border-radius:20px;width:90%;max-width:340px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;text-align:center;">
+    <div style="background:#FFF7ED;padding:22px 24px 16px;font-size:44px;">📦</div>
+    <div style="padding:18px 22px 22px;">
+      <div style="font-size:18px;font-weight:800;color:#9A3412;margin-bottom:10px;">지금은 접수를 받을 수 없어요</div>
+      <div style="font-size:14px;color:#475569;line-height:1.65;margin-bottom:14px;">담당자 <b>저장 공간이 가득 찼습니다.</b><br>잠시 후(다음 날) 다시 시도하시거나<br><b>등기로 제출</b>해 주세요.</div>
+      <div style="font-size:12.5px;color:#64748B;background:#F8FAFC;border-radius:10px;padding:9px 10px;margin-bottom:16px;line-height:1.5;">첨부한 사진은 그대로 남아 있어요.<br>문의: 인사관리팀</div>
+      <button onclick="document.getElementById('storage-popup').classList.add('hidden')" style="width:100%;padding:14px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#EA580C,#F97316);border:none;border-radius:12px;font-family:inherit;">확인</button>
+    </div>
+  </div>
+</div>
+
 <div id="fail-popup" class="overlay hidden">
   <div style="background:#fff;border-radius:20px;width:90%;max-width:340px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;text-align:center;">
     <div style="background:#FEF2F2;padding:22px 24px 16px;font-size:44px;">⚠️</div>
@@ -477,7 +489,7 @@ function confirmPrivacyAlert(){closePrivacyAlert();agreeAndStart();setTimeout(()
 function closeOrderPopup(){document.getElementById('order-popup').classList.add('hidden')}
 function closeCompletePopup(){document.getElementById('complete-popup').classList.add('hidden');secureCleanup();releaseWakeLock();initState();document.getElementById('empId').value='';document.getElementById('empName').value='';document.getElementById('submit-text').textContent='PDF 변환 및 전송';checkSubmit()}
 
-function agreeAndStart(){showScreen('main-screen');initState();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
+function agreeAndStart(){showScreen('main-screen');initState();checkServerStatus();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
 function resetTimer(){document.getElementById('timeout-warn').classList.add('hidden');if(warningTimer)clearTimeout(warningTimer);if(sessionTimer)clearTimeout(sessionTimer);warningTimer=setTimeout(()=>document.getElementById('timeout-warn').classList.remove('hidden'),SESSION_TIMEOUT_MS-60000);sessionTimer=setTimeout(()=>{secureCleanup();releaseWakeLock();initState();showScreen('consent-screen')},SESSION_TIMEOUT_MS)}
 function secureCleanup(){pendingPayload=null;reviewCtx=null;try{document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML=''}catch(_){}try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
 
@@ -590,10 +602,8 @@ function sharpnessScore(srcCanvas){
 function recompressForSend(imgDataUrl, totalCount){
   return new Promise(resolve=>{
     let quality, maxPx;
-    if(totalCount<=5){quality=0.93;maxPx=2400}       // 1~5장: 고화질
-    else if(totalCount<=15){quality=0.86;maxPx=2200}  // 6~15장: 표준
-    else if(totalCount<=30){quality=0.78;maxPx=1800}  // 16~30장: 압축
-    else{quality=0.62;maxPx=1400}                     // 31장+: 강압축
+    // 장수와 관계없이 화질 고정 (담당자가 모든 서류를 직접 판독해야 하므로)
+    quality=0.90;maxPx=2000;
     const img=new Image();
     img.onload=()=>{
       let w=img.width,h=img.height;
@@ -1523,7 +1533,7 @@ function postAndVerify(bodyStr){
     xhr.onload=()=>{
       let j=null;try{j=JSON.parse(xhr.responseText)}catch(_){}
       if(xhr.status===200&&j&&j.success===true)resolve({ok:true,res:j});
-      else resolve({ok:false,why:j&&j.message?'서버 오류':('응답 코드 '+xhr.status)});
+      else resolve({ok:false,code:j&&j.code||'',why:j&&j.message?'서버 오류':('응답 코드 '+xhr.status)});
     };
     xhr.onerror=()=>resolve({ok:false,why:'네트워크 연결 실패'});
     xhr.ontimeout=()=>resolve({ok:false,why:'응답 시간 초과'});
@@ -1549,17 +1559,39 @@ async function doSubmit(){
         stampedImages.push(await stampBanner(item.img,item.memberLabel,item.hospitalName,item.docType,allItems.length));
       }
       const pdfImages=stampedImages.map(img=>({jpeg:dataUrlToUint8(img.processed),w:img.width,h:img.height}));
-      const pdfBase64=u8ToB64(buildPDF(pdfImages,empId,empName));
+      const pdfBytes=buildPDF(pdfImages,empId,empName);
+      // 구글이 파일 1개로 만들 수 있는 한도(50MB) 직전에서 미리 안내
+      if(pdfBytes.length>48*1024*1024){
+        const mb=Math.round(pdfBytes.length/1024/1024);
+        throw Object.assign(new Error('too_big'),{userMsg:'서류가 너무 많아 한 번에 보낼 수 없어요 (약 '+mb+'MB). 서류를 두 번에 나눠 제출해 주세요. (예: 1차 신규서류 / 2차 누락서류)'});
+      }
+      const pdfBase64=u8ToB64(pdfBytes);
       const typeLabel=submitType==='new'?'신규서류':'누락서류';
       const submitId=makeSubmitId();
-      pendingPayload={submitId,key:payloadKey(empId,empName,allItems),body:JSON.stringify({empId,empName,pdfData:pdfBase64,typeLabel,submitId,pageCount:allItems.length})};
+      pendingPayload={submitId,key:payloadKey(empId,empName,allItems),meta:{empId,empName,typeLabel,submitId,pageCount:allItems.length},b64:pdfBase64};
     }
-    const t0=Date.now();
-    const tick=()=>{txt.innerHTML='<span class="spinner-w"></span> 전송 중... '+Math.round((Date.now()-t0)/1000)+'초 <span style="font-size:11px;opacity:.8">(화면을 끄지 마세요)</span>'};
+    const t0=Date.now();let prog='';
+    const tick=()=>{txt.innerHTML='<span class="spinner-w"></span> 전송 중'+prog+'... '+Math.round((Date.now()-t0)/1000)+'초 <span style="font-size:11px;opacity:.8">(화면을 끄지 마세요)</span>'};
     tick();const iv=setInterval(tick,1000);
-    const r=await postAndVerify(pendingPayload.body);
+    let r;
+    const P=pendingPayload;
+    if(P.b64.length<=SINGLE_MAX){
+      // 작은 파일: 한 번에 전송
+      r=await postAndVerify(JSON.stringify({...P.meta,pdfData:P.b64}));
+    }else{
+      // 큰 파일: 조각으로 나눠 보내고, 구글 쪽에서 PDF 1개로 합침
+      const total=Math.ceil(P.b64.length/CHUNK);
+      for(let i=0;i<total;i++){
+        prog=' '+Math.round(i/total*100)+'%';tick();
+        r=await postAndVerify(JSON.stringify({...P.meta,chunkIndex:i,chunkTotal:total,totalBytes:Math.round(P.b64.length*0.75),chunk:P.b64.slice(i*CHUNK,(i+1)*CHUNK)}));
+        if(!r.ok||(r.res&&r.res.dup))break;
+      }
+    }
     clearInterval(iv);
-    if(r.ok){
+    if(!r.ok&&r.code==='STORAGE_FULL'){
+      showStorageFull();
+      txt.textContent='다시 전송하기';btn.disabled=false;checkSubmit();
+    }else if(r.ok){
       document.getElementById('complete-receipt').textContent=pendingPayload.submitId;
       pendingPayload=null;
       document.getElementById('complete-name').textContent=empId+' '+empName;
@@ -1572,7 +1604,7 @@ async function doSubmit(){
     }
   }catch(err){
     console.error(err);
-    document.getElementById('fail-detail').textContent='사유: PDF 생성 오류';
+    document.getElementById('fail-detail').textContent=err&&err.userMsg?err.userMsg:'사유: PDF 생성 오류';
     document.getElementById('fail-popup').classList.remove('hidden');
     txt.textContent='다시 전송하기';
     btn.disabled=false;checkSubmit();
@@ -1580,6 +1612,20 @@ async function doSubmit(){
 }
 // 내용이 바뀌지 않았으면 이미 만든 PDF를 재사용 (재전송 시 동일 접수번호 유지)
 function payloadKey(empId,empName,items){return empId+'|'+empName+'|'+submitType+'|'+items.map(i=>i.img.id+':'+i.hospitalName+':'+i.docType+':'+i.memberLabel+':'+(i.img.processed||'').length).join(',')}
+// 전송 크기: 약 30MB 이하는 한 번에, 그보다 크면 10MB(텍스트 기준) 조각으로
+let SINGLE_MAX=40*1024*1024,CHUNK=10*1024*1024; // 4의 배수 → 조각을 이어 붙이면 원본과 동일
+
+// ═══ 담당자 저장 공간 가득 참 안내 ═══
+function showStorageFull(){document.getElementById('storage-popup').classList.remove('hidden')}
+// 앱을 열 때 미리 확인 → 사진 찍기 전에 알려줌 (구 버전 서버는 응답에 full이 없어 그냥 넘어감)
+function checkServerStatus(){
+  try{
+    const xhr=new XMLHttpRequest();
+    xhr.open('GET',APPS_SCRIPT_URL+'?check=1',true);xhr.timeout=15000;
+    xhr.onload=()=>{try{const j=JSON.parse(xhr.responseText);if(j&&j.full===true)showStorageFull()}catch(_){}};
+    xhr.send();
+  }catch(_){}
+}
 // 접수번호: 날짜(MMDD) + 헷갈리는 글자(0/O/1/I) 뺀 4자리. 재전송 시에도 같은 번호 유지
 function makeSubmitId(){
   const d=new Date(),A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r=new Uint8Array(4);crypto.getRandomValues(r);
