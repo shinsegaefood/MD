@@ -351,7 +351,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 
 <div id="cam-popup" class="hidden">
   <video id="cam-video" playsinline muted autoplay></video>
-  <div id="cam-guide"><i></i><i></i><i></i><i></i><div id="cam-mark" class="cam-mark l hidden"><span>▲ 서류 윗부분</span></div></div>
+  <div id="cam-guide"><i></i><i></i><i></i><i></i><div id="cam-mark" class="cam-mark r hidden"><span>▲ 서류 윗부분</span></div></div>
   <div id="cam-mode"><button id="cam-mode-p" onclick="setDocMode('portrait')">세로 문서</button><button id="cam-mode-l" onclick="setDocMode('landscape')">가로 문서</button></div>
   <div id="cam-tip"></div>
   <div id="cam-flash"></div>
@@ -1255,7 +1255,7 @@ function onMotion(e){
 }
 // ═══ 가로/세로 문서 모드 ═══
 // 가로 문서를 세로 화면에서 찍으면 서류가 옆으로 눕게 됨 → 초록 띠(서류 윗부분) 위치대로 돌려서 저장
-let camDocMode='portrait',camSide='left';
+let camDocMode='portrait',camSide='right'; // 기본: 오른쪽 띠 (촬영 버튼이 오른쪽인 가로 촬영 자세)
 function setDocMode(m){camDocMode=m;updateDocMark();layoutGuide()}
 function docSideways(){const screenPortrait=window.innerHeight>=window.innerWidth;return screenPortrait!==(camDocMode==='portrait')}
 function updateDocMark(){
@@ -1284,7 +1284,7 @@ function stopTilt(){window.removeEventListener('devicemotion',onMotion);tiltOn=f
 
 async function openGuideCamera(){
   const up=pendingUpload;if(!up)return;
-  camDocMode=up.type==='detail'?'landscape':'portrait';camSide='left';
+  camDocMode=up.type==='detail'?'landscape':'portrait';camSide='right';
   startTilt();
   camPhotoOff=false;camPhotoSettings=null;
   camCtx={...up,replace:camReplaceDoc,added:[]};camReplaceDoc=null;camShots=0;camChain=Promise.resolve();
