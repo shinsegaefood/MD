@@ -191,8 +191,8 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 
     <div class="sticky-bar">
       <div class="sticky-row">
-        <input class="sticky-inp" type="text" inputmode="numeric" id="empId" placeholder="사번" style="max-width:90px;">
-        <input class="sticky-inp" type="text" id="empName" placeholder="이름" style="max-width:80px;">
+        <input class="sticky-inp" type="text" inputmode="numeric" id="empId" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="사번" style="max-width:90px;">
+        <input class="sticky-inp" type="text" id="empName" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="이름" style="max-width:80px;">
         <div class="sticky-type">
           <button class="sticky-type-btn active-new" id="type-new" onclick="setType('new')">🆕 신규서류</button>
           <button class="sticky-type-btn" id="type-sup" onclick="setType('supplement')">📎 누락서류</button>
@@ -492,7 +492,13 @@ function closeCompletePopup(){document.getElementById('complete-popup').classLis
 
 function agreeAndStart(){showScreen('main-screen');initState();checkServerStatus();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
 function resetTimer(){document.getElementById('timeout-warn').classList.add('hidden');if(warningTimer)clearTimeout(warningTimer);if(sessionTimer)clearTimeout(sessionTimer);warningTimer=setTimeout(()=>document.getElementById('timeout-warn').classList.remove('hidden'),SESSION_TIMEOUT_MS-60000);sessionTimer=setTimeout(()=>{secureCleanup();releaseWakeLock();initState();showScreen('consent-screen')},SESSION_TIMEOUT_MS)}
-function secureCleanup(){pendingPayload=null;reviewCtx=null;try{document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML=''}catch(_){}try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
+function secureCleanup(){pendingPayload=null;
+  try{const li=document.getElementById('cam-last-img');if(li)li.removeAttribute('src');
+    ['cf-body','cf-who'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});
+    const cc=document.getElementById('crop-canvas');if(cc){cc.width=1;cc.height=1}
+    const g=document.getElementById('drag-ghost');if(g)g.remove();
+    ['confirm-popup','fail-popup','more-popup','crop-popup'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden')});
+  }catch(_){}reviewCtx=null;try{document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML=''}catch(_){}try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
 
 function setType(type){submitType=type;document.getElementById('type-new').className='sticky-type-btn'+(type==='new'?' active-new':'');document.getElementById('type-sup').className='sticky-type-btn'+(type==='supplement'?' active-sup':'')}
 
@@ -689,6 +695,7 @@ function retakeCurrent(){
 function closeCropEditor(){
   document.getElementById('crop-popup').classList.add('hidden');
   cropCtx.img=null;cropCtx.corners=[];
+  const cc=document.getElementById('crop-canvas');if(cc){cc.width=1;cc.height=1}
 }
 
 function resetToFull(){
@@ -1023,7 +1030,7 @@ function render(){
       <div class="member-header"><span class="member-badge ${isF?'family':''}">${m.label}</span>${isF?`<button class="member-del" onclick="removeMember(${m.id})">✕</button>`:''}</div>
       ${!isF?'<div style="font-size:12px;color:#1E40AF;background:#EFF6FF;padding:6px 10px;border-radius:8px;margin-bottom:10px;line-height:1.5;border:1px solid #BFDBFE;">💡 병원별로 <b>최초신청</b> 또는 <b>재진</b>을 선택해주세요</div>':''}
       ${m.hospitals.map(h=>`<div class="hospital-card" id="hc-${h.id}">
-        <div class="hospital-header"><span style="font-size:14px">🏥</span><input class="hospital-name${hospHasDocs(h)&&!h.name.trim()?' err':''}" type="text" placeholder="${hospHasDocs(h)&&!h.name.trim()?'⚠️ 병원명을 입력해주세요 (필수)':'병원명 (예: 삼성서울병원)'}" value="${escHtml(h.name)}" oninput="updateHospitalName(${m.id},${h.id},this.value,this)">${m.hospitals.length>1?`<button class="hospital-del" onclick="removeHospital(${m.id},${h.id})">✕</button>`:''}</div>
+        <div class="hospital-header"><span style="font-size:14px">🏥</span><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="hospital-name${hospHasDocs(h)&&!h.name.trim()?' err':''}" type="text" placeholder="${hospHasDocs(h)&&!h.name.trim()?'⚠️ 병원명을 입력해주세요 (필수)':'병원명 (예: 삼성서울병원)'}" value="${escHtml(h.name)}" oninput="updateHospitalName(${m.id},${h.id},this.value,this)">${m.hospitals.length>1?`<button class="hospital-del" onclick="removeHospital(${m.id},${h.id})">✕</button>`:''}</div>
         <div style="margin-bottom:10px;">
           <div style="font-size:12.5px;font-weight:700;color:${h.visitType?'#0F2940':'#DC2626'};margin-bottom:6px;">${h.visitType?'신청 유형':'⚠️ 신청 유형을 선택해주세요 (필수)'}</div>
           <div style="display:flex;gap:6px;">
@@ -1462,6 +1469,7 @@ async function closeGuideCamera(skipWait){
     bar.classList.add('hidden');d.textContent='완료';d.disabled=false;
   }else document.getElementById('cam-popup').classList.add('hidden');
   camCtx=null;camShots=0;
+  {const li=document.getElementById('cam-last-img');if(li){li.removeAttribute('src');li.classList.add('hidden')}}
   render();checkSubmit();
   if(!skipWait&&ctx){
     if(ctx.added.length)openReview(ctx,ctx.added);
