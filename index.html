@@ -126,8 +126,9 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 #cam-err{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:24px;background:#0C1929}
 #review-popup{position:fixed;inset:0;z-index:190;background:#F1F5F9;display:flex;flex-direction:column}
 #rv-head{background:#0C1929;color:#fff;padding:14px 16px 12px;text-align:center}
-#rv-body{flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
-.rv-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(15,23,42,.08);border:2px solid transparent}
+#rv-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px}
+.rv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:max-content;gap:10px}
+.rv-card{min-height:max-content;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(15,23,42,.08);border:2px solid transparent}
 .rv-card.blurry{border-color:#DC2626}
 .rv-img{position:relative;aspect-ratio:3/4;background:#1E293B;cursor:pointer}
 .rv-img img{width:100%;height:100%;object-fit:contain;display:block}
@@ -1213,10 +1214,10 @@ function renderReview(){
   if(!reviewCtx.items.length){closeReview();return}
   const nb=reviewCtx.items.filter(d=>d.blurry).length;
   document.getElementById('rv-title').innerHTML=DOC_NAME[reviewCtx.type]+' 확인 ('+reviewCtx.items.length+'장)'+(nb?' <span style="color:#FCA5A5;font-size:13px">· 흐림 '+nb+'장</span>':'');
-  document.getElementById('rv-body').innerHTML=reviewCtx.items.map((d,i)=>`<div class="rv-card${d.blurry?' blurry':''}">
-    <div class="rv-img" onclick="reviewEdit(${i})"><img src="${d.processed}"><div class="rv-no">${arr.indexOf(d)+1}</div>${d.manuallyEdited?'<div class="rv-edited">✎ 수정함</div>':''}${d.blurry?'<div class="rv-blur">⚠ 흐려요 · 다시 찍어주세요</div>':''}</div>
+  document.getElementById('rv-body').innerHTML='<div class="rv-grid">'+reviewCtx.items.map((d,i)=>`<div class="rv-card${d.blurry?' blurry':''}">
+    <div class="rv-img" onclick="reviewEdit(${i})"><img src="${d.processed}" loading="lazy" decoding="async"><div class="rv-no">${arr.indexOf(d)+1}</div>${d.manuallyEdited?'<div class="rv-edited">✎ 수정함</div>':''}${d.blurry?'<div class="rv-blur">⚠ 흐려요 · 다시 찍어주세요</div>':''}</div>
     <div class="rv-btns"><button onclick="reviewRotate(${i})"><span style="font-size:15px">↻</span><br>회전</button><button onclick="reviewEdit(${i})"><span style="font-size:13px">✏️</span><br>수정</button><button onclick="reviewRetake(${i})"><span style="font-size:13px">📷</span><br>다시</button><button class="rv-del" onclick="reviewDelete(${i})"><span style="font-size:13px">🗑</span><br>삭제</button></div>
-  </div>`).join('');
+  </div>`).join('')+'</div>';
 }
 function closeReview(){reviewCtx=null;document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML='';render();checkSubmit()}
 // 사진 한 장을 시계 방향 90° 회전 (원본·편집본 모두)
@@ -1569,24 +1570,35 @@ async function doSubmit(){
       const submitId=makeSubmitId();
       pendingPayload={submitId,key:payloadKey(empId,empName,allItems),meta:{empId,empName,typeLabel,submitId,pageCount:allItems.length},b64:pdfBase64};
     }
-    const t0=Date.now();let prog='';
-    const tick=()=>{txt.innerHTML='<span class="spinner-w"></span> 전송 중'+prog+'... '+Math.round((Date.now()-t0)/1000)+'초 <span style="font-size:11px;opacity:.8">(화면을 끄지 마세요)</span>'};
-    tick();const iv=setInterval(tick,1000);
     let r;
     const P=pendingPayload;
-    if(P.b64.length<=SINGLE_MAX){
+    const single=P.b64.length<=SINGLE_MAX;
+    const total=single?1:Math.ceil(P.b64.length/CHUNK);
+    // 실제 전송량은 (보안상) 실시간으로 알 수 없어서, 조각이 끝날 때마다 속도를 재고
+    // 그 사이를 예상 시간에 맞춰 1%씩 채움. 완료 응답 전에는 그 조각 몫의 95%에서 멈춤.
+    const segLen=single?P.b64.length:CHUNK;
+    let seg=0,segStart=Date.now(),expMs=1500+segLen/(600*1024)*1000,shown=0;
+    const tick=()=>{
+      const f=Math.min(0.95,1-Math.exp(-(Date.now()-segStart)/expMs));
+      const target=Math.min(99,(seg+f)/total*100);
+      if(target>shown)shown=Math.min(target,shown+1.5); // 한 번에 크게 튀지 않게
+      txt.innerHTML='<span class="spinner-w"></span> 전송 중... '+Math.floor(shown)+'% <span style="font-size:11px;opacity:.8">(화면을 끄지 마세요)</span>';
+    };
+    tick();const iv=setInterval(tick,150);
+    const segDone=()=>{const took=Date.now()-segStart;expMs=Math.max(800,took);seg++;segStart=Date.now()};
+    if(single){
       // 작은 파일: 한 번에 전송
       r=await postAndVerify(JSON.stringify({...P.meta,pdfData:P.b64}));
     }else{
       // 큰 파일: 조각으로 나눠 보내고, 구글 쪽에서 PDF 1개로 합침
-      const total=Math.ceil(P.b64.length/CHUNK);
       for(let i=0;i<total;i++){
-        prog=' '+Math.round(i/total*100)+'%';tick();
         r=await postAndVerify(JSON.stringify({...P.meta,chunkIndex:i,chunkTotal:total,totalBytes:Math.round(P.b64.length*0.75),chunk:P.b64.slice(i*CHUNK,(i+1)*CHUNK)}));
         if(!r.ok||(r.res&&r.res.dup))break;
+        segDone();
       }
     }
     clearInterval(iv);
+    if(r&&r.ok){txt.innerHTML='<span class="spinner-w"></span> 전송 중... 100%';await new Promise(z=>setTimeout(z,250))}
     if(!r.ok&&r.code==='STORAGE_FULL'){
       showStorageFull();
       txt.textContent='다시 전송하기';btn.disabled=false;checkSubmit();
