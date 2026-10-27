@@ -140,6 +140,36 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 .rv-btns button+button{border-left:1px solid #F1F5F9}
 .rv-btns .rv-del{color:#DC2626}
 #rv-foot{background:#fff;border-top:1px solid #E2E8F0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px}
+.gd-hb{display:flex;align-items:center;gap:5px;color:#fff;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.15);font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;position:relative}
+.gd-dot{position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:50%;background:#F97316;border:2px solid #162D50}
+#upd-banner{background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:9px 10px 9px 12px;display:flex;align-items:center;gap:8px;font-size:12.5px;color:#9A3412;line-height:1.4}
+#upd-banner b{color:#7C2D12}
+#upd-banner .more{margin-left:auto;background:#EA580C;color:#fff;border:none;font-size:12px;font-weight:700;padding:6px 10px;border-radius:8px;cursor:pointer;font-family:inherit;white-space:nowrap}
+#upd-banner .x{background:none;border:none;color:#C2410C;font-size:16px;cursor:pointer;padding:2px 4px}
+#guide-popup{position:fixed;inset:0;z-index:210;background:rgba(15,23,42,.5);display:flex;align-items:flex-end;justify-content:center}
+.gd-sheet{background:#fff;width:100%;max-width:520px;height:86vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;animation:fadeUp .25s ease}
+.gd-head{padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between}
+.gd-head h3{margin:0;font-size:17px;color:#0F172A}
+.gd-close{background:#F1F5F9;border:none;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer}
+.gd-tabs{display:flex;gap:4px;margin:12px 16px 0;background:#F1F5F9;border-radius:10px;padding:3px}
+.gd-tab{flex:1;border:none;background:transparent;padding:10px 0;font-size:14px;font-weight:700;color:#64748B;border-radius:8px;cursor:pointer;font-family:inherit}
+.gd-tab.on{background:#fff;color:#0F172A;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.gd-new{font-size:9.5px;background:#F97316;color:#fff;border-radius:6px;padding:1px 5px;margin-left:4px;vertical-align:2px}
+.gd-pane{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px calc(20px + env(safe-area-inset-bottom));display:none}
+.gd-pane.on{display:block}
+.gd-pane details{border:1px solid #E2E8F0;border-radius:12px;margin-bottom:8px;background:#fff}
+.gd-pane summary{list-style:none;padding:13px 14px;font-weight:800;font-size:14.5px;cursor:pointer;display:flex;justify-content:space-between;color:#0F172A}
+.gd-pane summary::-webkit-details-marker{display:none}
+.gd-pane summary::after{content:'＋';color:#94A3B8}
+.gd-pane details[open] summary::after{content:'－'}
+.gd-pane ul{margin:0;padding:0 14px 12px 30px;font-size:13.5px;line-height:1.7;color:#334155}
+.gd-pane li b{color:#0F172A}
+.gd-note{font-size:12px;color:#64748B;background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-top:6px;line-height:1.55}
+.gd-up{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #F1F5F9}
+.gd-up .d{flex:0 0 48px;font-size:12.5px;font-weight:800;color:#2563EB;padding-top:2px}
+.gd-up .t{font-size:14px;line-height:1.55;color:#334155}
+.gd-up .t b{color:#0F172A}
+.gd-up .nw{display:block;font-size:9px;color:#fff;background:#F97316;border-radius:5px;text-align:center;margin-top:4px;width:30px}
 .cf-h{border:1px solid #E2E8F0;border-radius:10px;padding:9px 11px;margin-bottom:7px;text-align:left}
 .doc-thumb-warn{position:absolute;bottom:-3px;left:-3px;background:#F59E0B;color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:6px;border:1.5px solid #fff;line-height:1.2;pointer-events:none}
 .doc-thumb-scanned{position:absolute;bottom:-3px;left:-3px;background:#10B981;color:#fff;font-size:9px;font-weight:800;padding:1px 4px;border-radius:6px;border:1.5px solid #fff;line-height:1.2;pointer-events:none}
@@ -183,10 +213,13 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   <div id="main-screen" class="hidden">
     <div class="header"><div class="header-inner">
       <div class="brand"><div class="brand-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="brand-name">신세계푸드</div><div class="brand-sub">의료비 제출 시스템</div></div></div>
+      <div style="display:flex;gap:6px;align-items:center;">
+      <button class="gd-hb" onclick="openGuide('guide')">📋 <span>의료비 안내/공지사항</span><span id="gd-dot" class="gd-dot hidden"></span></button>
       <button onclick="openInfoPopup()" style="display:flex;align-items:center;gap:5px;color:#fff;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.15);font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         <span>도움말</span>
       </button>
+      </div>
     </div></div>
 
     <div class="sticky-bar">
@@ -202,6 +235,10 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
     </div>
 
     <div class="main">
+      <div id="upd-banner" class="hidden">🆕 <span id="upd-banner-text"></span>
+        <button class="more" onclick="openGuide('update')">자세히</button>
+        <button class="x" onclick="document.getElementById('upd-banner').classList.add('hidden')" aria-label="알림 닫기">✕</button>
+      </div>
       <div id="timeout-warn" class="warn-bar hidden"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="warn-txt"><b>1분 후 자동 초기화됩니다</b> — 화면을 터치하면 30분 연장됩니다.</div></div>
 
       <div id="members-area"></div>
@@ -395,6 +432,45 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
+<div id="guide-popup" class="hidden" onclick="if(event.target===this)closeGuide()">
+  <div class="gd-sheet">
+    <div class="gd-head"><h3>📋 안내</h3><button class="gd-close" onclick="closeGuide()" aria-label="닫기">✕</button></div>
+    <div class="gd-tabs">
+      <button class="gd-tab" id="gd-t-guide" onclick="guideTab('guide')">의료비 안내</button>
+      <button class="gd-tab" id="gd-t-update" onclick="guideTab('update')">업데이트 소식<span class="gd-new hidden" id="gd-tabnew">NEW</span></button>
+    </div>
+    <div class="gd-pane" id="gd-p-guide">
+      <details open><summary>① 신청 방법</summary><ul>
+        <li>SHRS › 나의복리후생 › <b>의료비신청</b> 결재상신 후 서류 제출</li>
+        <li>결재선: 본인 → 파트장(있을 시) → 팀장</li>
+        <li>병원 2곳 이상: '입력' 버튼으로 <b>병원별 입력 후 1건으로 상신</b></li>
+        <li>규정 원문: 블라썸 › 혜택 › 복리후생제도 › 5. 의료비 지원 (꼭 읽어주세요)</li></ul></details>
+      <details><summary>② 인정 기간</summary><ul>
+        <li>신청일로부터 <b>40일 이내</b> 진료분</li>
+        <li>예) 신청일 1/10 → 12/1 ~ 1/10 내역 인정</li></ul></details>
+      <details><summary>③ 제출 서류</summary><ul>
+        <li>진단서 또는 진료확인서 (<b>진단명·진단코드 필수</b>)</li>
+        <li>진료비 영수증 또는 납입확인서(약제비 청구 시 처방전·약봉투)</li>
+        <li>진료비 세부내역서</li>
+        <li>비급여 물리치료(체외충격파·도수치료 등)는 <b>세부내역서 필수</b></li>
+        <li>같은 병원에서 같은 질병으로 계속 치료 중이면 진단서는 <b>최초 1회만</b></li></ul></details>
+      <details><summary>④ 지원 기준</summary><ul>
+        <li>진단서만 인정: 비급여 물리치료(횟수 초과한 도수치료·체외충격파는 지원불가), 수면장애, 피부과, 성형외과, 정신과(세부내역 필수)</li>
+        <li>MRI·CT: 진단서 <b>최종진단</b> 체크 필수 (임상적 추정 ✕)</li>
+        <li>한의원: 비급여 치료·한약 제외</li>
+        <li>치과: 보철료 등 비급여 제외</li>        
+        <li>자녀: 피부양자만 가능 (최초 신청 시 건강보험증 사본)</li>
+        <li>입원료: 1일 최대 5만원</li></ul></details>
+      <details><summary>⑤ 등기·직접 제출</summary><ul>
+        <li>서울시 성동구 성수일로56 백영성수센터 7층 인사관리팀</li>
+        <li>직접 제출: 7층 남자 화장실 쪽 서류함</li>
+        <li>순서: 날짜·병원별로 <b>진단서 → 영수증(전체) → 세부내역서(전체)</b></li></ul></details>
+      <div class="gd-note">항목을 누르면 펼쳐지고 접혀요</div>
+    </div>
+    <div class="gd-pane" id="gd-p-update"></div>
+  </div>
+</div>
+
 <div id="storage-popup" class="overlay hidden">
   <div style="background:#fff;border-radius:20px;width:90%;max-width:340px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;text-align:center;">
     <div style="background:#FFF7ED;padding:22px 24px 16px;font-size:44px;">📦</div>
@@ -432,7 +508,9 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
         <div style="font-size:11px;color:#64748B;font-weight:700;">접수번호</div>
         <div id="complete-receipt" style="font-size:24px;font-weight:900;color:#0F2940;letter-spacing:2px;font-family:ui-monospace,Menlo,monospace;">-</div>
       </div>
-      <div style="font-size:11.5px;color:#64748B;margin-bottom:18px;line-height:1.5;">📸 이 화면을 <b>캡처</b>해 두시면<br>문의 시 빠르게 확인할 수 있어요</div>
+      <div style="font-size:11.5px;color:#64748B;margin-bottom:12px;line-height:1.5;">📸 이 화면을 <b>캡처</b>해 두시면<br>문의 시 빠르게 확인할 수 있어요</div>
+      <button onclick="saveMyPdf()" style="width:100%;padding:12px;font-size:14px;font-weight:800;color:#1D4ED8;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;font-family:inherit;margin-bottom:4px;">📥 보낸 PDF 내 폰에 저장</button>
+      <div style="font-size:10.5px;color:#94A3B8;margin-bottom:14px;line-height:1.5;">보험 청구 등에 쓸 수 있어요<br><b>본인 휴대폰에서만</b> 저장하세요 · [확인]을 누르면 앱에서 지워져요</div>
       <button onclick="closeCompletePopup()" style="width:100%;padding:14px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#059669,#10B981);border:none;border-radius:12px;font-family:inherit;box-shadow:0 4px 12px rgba(16,185,129,.3);">확인</button>
     </div>
   </div>
@@ -456,7 +534,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 <script>
 const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycby4kliXeZngzS5tiNeExt9sZyVyVQeXN5PMbCDhYIscnc4Kl6SSKK5r3oZxFkwMX3e6/exec";
 const SESSION_TIMEOUT_MS=30*60*1000;
-let pendingPayload=null,submitBusy=false;
+let pendingPayload=null,submitBusy=false,myPdf=null; // myPdf: 완료 화면에서 본인 폰에 저장할 PDF (확인 누르면 즉시 삭제)
 let submitType='new',members=[],idC=1,sessionTimer=null,warningTimer=null,pendingUpload=null;
 let wakeLock=null;
 
@@ -490,9 +568,9 @@ function confirmPrivacyAlert(){closePrivacyAlert();agreeAndStart();setTimeout(()
 function closeOrderPopup(){document.getElementById('order-popup').classList.add('hidden')}
 function closeCompletePopup(){document.getElementById('complete-popup').classList.add('hidden');secureCleanup();releaseWakeLock();initState();document.getElementById('empId').value='';document.getElementById('empName').value='';document.getElementById('submit-text').textContent='PDF 변환 및 전송';checkSubmit()}
 
-function agreeAndStart(){showScreen('main-screen');initState();checkServerStatus();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
+function agreeAndStart(){showScreen('main-screen');initState();checkServerStatus();renderUpdates();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
 function resetTimer(){document.getElementById('timeout-warn').classList.add('hidden');if(warningTimer)clearTimeout(warningTimer);if(sessionTimer)clearTimeout(sessionTimer);warningTimer=setTimeout(()=>document.getElementById('timeout-warn').classList.remove('hidden'),SESSION_TIMEOUT_MS-60000);sessionTimer=setTimeout(()=>{secureCleanup();releaseWakeLock();initState();showScreen('consent-screen')},SESSION_TIMEOUT_MS)}
-function secureCleanup(){pendingPayload=null;
+function secureCleanup(){pendingPayload=null;myPdf=null;
   try{const li=document.getElementById('cam-last-img');if(li)li.removeAttribute('src');
     ['cf-body','cf-who'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});
     const cc=document.getElementById('crop-canvas');if(cc){cc.width=1;cc.height=1}
@@ -1527,6 +1605,31 @@ function dragUp(e){
   document.addEventListener('mouseup',dragUp);
   area.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.doc-thumb'))e.preventDefault()});
 })();
+// ═══ 안내 · 업데이트 소식 ═══
+// 폰에 아무것도 저장하지 않음: 최신 업데이트 날짜로부터 7일 동안만 알림 띠·주황 점 표시
+// ▶ 업데이트할 때 맨 위에 한 줄 추가 (d: 날짜, t: 내용, b: 알림 띠 문구)
+const UPDATES=[
+  {d:'2026-10-27',t:'📥 전송 완료 화면에서 <b>보낸 PDF를 내 폰에 저장</b>할 수 있어요 (보험 청구 등)',b:'<b>보낸 PDF</b>를 내 폰에 저장할 수 있어요'},
+];
+const UPDATE_SHOW_DAYS=7;
+function updateIsFresh(){
+  const d=UPDATES[0]&&UPDATES[0].d;if(!d)return false;
+  const [y,m,dd]=d.split('-').map(Number);const start=new Date(y,m-1,dd);
+  const days=(Date.now()-start.getTime())/86400000;
+  return days>=0&&days<UPDATE_SHOW_DAYS;
+}
+function renderUpdates(){
+  const fresh=updateIsFresh();
+  document.getElementById('gd-p-update').innerHTML=UPDATES.map((u,i)=>{const [,m,d]=u.d.split('-');return `<div class="gd-up"><div class="d">${+m}.${d}${i===0&&fresh?'<span class="nw">NEW</span>':''}</div><div class="t">${u.t}</div></div>`}).join('')+
+    '<div class="gd-note">새 업데이트가 생기면 1주일 동안 화면 맨 위에 주황색 알림으로 알려드려요.</div>';
+  document.getElementById('gd-tabnew').classList.toggle('hidden',!fresh);
+  document.getElementById('gd-dot').classList.toggle('hidden',!fresh);
+  const bn=document.getElementById('upd-banner');
+  if(fresh&&UPDATES[0].b){document.getElementById('upd-banner-text').innerHTML=UPDATES[0].b;bn.classList.remove('hidden')}else bn.classList.add('hidden');
+}
+function openGuide(t){document.getElementById('guide-popup').classList.remove('hidden');guideTab(t||'guide');if(t==='update')document.getElementById('upd-banner').classList.add('hidden')}
+function closeGuide(){document.getElementById('guide-popup').classList.add('hidden')}
+function guideTab(t){['guide','update'].forEach(k=>{document.getElementById('gd-t-'+k).classList.toggle('on',k===t);document.getElementById('gd-p-'+k).classList.toggle('on',k===t)})}
 function closeSubmitConfirm(){document.getElementById('confirm-popup').classList.add('hidden')}
 
 // 서버 응답을 실제로 읽어서 저장 성공 여부를 확인한다.
@@ -1576,7 +1679,7 @@ async function doSubmit(){
       const pdfBase64=u8ToB64(pdfBytes);
       const typeLabel=submitType==='new'?'신규서류':'누락서류';
       const submitId=makeSubmitId();
-      pendingPayload={submitId,size:pdfBytes.length,key:payloadKey(empId,empName,allItems),meta:{empId,empName,typeLabel,submitId,pageCount:allItems.length},b64:pdfBase64};
+      pendingPayload={blob:new Blob([pdfBytes],{type:'application/pdf'}),submitId,size:pdfBytes.length,key:payloadKey(empId,empName,allItems),meta:{empId,empName,typeLabel,submitId,pageCount:allItems.length},b64:pdfBase64};
     }
     let r;
     const P=pendingPayload;
@@ -1612,6 +1715,7 @@ async function doSubmit(){
       txt.textContent='다시 전송하기';btn.disabled=false;checkSubmit();
     }else if(r.ok){
       document.getElementById('complete-receipt').textContent=pendingPayload.submitId;
+      myPdf={blob:pendingPayload.blob,name:'MedicalClaim_'+pendingPayload.submitId+'.pdf'};
       pendingPayload=null;
       document.getElementById('complete-name').textContent=empId+' '+empName;
       document.getElementById('complete-popup').classList.remove('hidden');
@@ -1650,6 +1754,15 @@ function checkServerStatus(){
 function makeSubmitId(){
   const d=new Date(),A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r=new Uint8Array(4);crypto.getRandomValues(r);
   return String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Array.from(r,x=>A[x%A.length]).join('');
+}
+// 보낸 PDF를 본인 폰에 저장 (서버에서 꺼내오는 게 아니라, 방금 폰에서 만든 파일 그대로)
+function saveMyPdf(){
+  if(!myPdf||!myPdf.blob){showToast('저장할 파일이 없어요');return}
+  const url=URL.createObjectURL(myPdf.blob);
+  const a=document.createElement('a');a.href=url;a.download=myPdf.name;a.rel='noopener';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  showToast('📥 다운로드 폴더에 저장했어요<br><span style="font-size:12px;font-weight:500">'+myPdf.name+'</span>',3500);
 }
 function retrySubmit(){document.getElementById('fail-popup').classList.add('hidden');doSubmit()}
 
