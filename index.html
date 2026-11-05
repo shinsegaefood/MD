@@ -421,6 +421,26 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
+<div id="shrs-popup" class="overlay hidden">
+  <div style="background:#fff;border-radius:18px;width:92%;max-width:380px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;">
+    <div style="background:#FFF7ED;padding:18px 20px 14px;text-align:center;border-bottom:1px solid #FED7AA;">
+      <div style="font-size:30px;line-height:1;">⚠️</div>
+      <div style="font-size:17px;font-weight:800;color:#9A3412;margin-top:8px;">SHRS 의료비 신청, 하셨나요?</div>
+    </div>
+    <div style="padding:16px 20px 2px;font-size:13.5px;color:#334155;line-height:1.65;">
+      이 앱은 <b>서류만 보내는 곳</b>이에요.<br>
+      <b style="color:#DC2626;">SHRS에서 의료비 신청(결재상신)을 따로 해야</b> 지원금이 처리돼요.
+      <div style="margin-top:10px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#475569;">
+        📍 SHRS › 나의복리후생 › <b>의료비신청</b> → 결재상신
+      </div>
+    </div>
+    <div style="padding:14px 16px 16px;display:flex;gap:8px;">
+      <button id="shrs-next" onclick="closeShrs();showSubmitSummary()" style="flex:1.4;padding:13px;font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:12px;font-family:inherit;">확인했어요</button>
+    </div>
+    <div style="padding:0 16px 14px;font-size:11px;color:#94A3B8;text-align:center;">서류를 보낸 뒤에 SHRS에서 신청해도 괜찮아요</div>
+  </div>
+</div>
+
 <div id="confirm-popup" class="overlay hidden">
   <div style="background:#fff;border-radius:18px;width:92%;max-width:380px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;">
     <div style="padding:16px 20px;border-bottom:1px solid #F1F5F9;text-align:center;"><div style="font-size:16px;font-weight:800;color:#0F2940;">보내기 전에 확인해주세요</div><div id="cf-who" style="font-size:12px;color:#64748B;margin-top:3px;"></div></div>
@@ -575,7 +595,7 @@ function secureCleanup(){pendingPayload=null;myPdf=null;
     ['cf-body','cf-who'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});
     const cc=document.getElementById('crop-canvas');if(cc){cc.width=1;cc.height=1}
     const g=document.getElementById('drag-ghost');if(g)g.remove();
-    ['confirm-popup','fail-popup','more-popup','crop-popup'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden')});
+    ['shrs-popup','confirm-popup','fail-popup','more-popup','crop-popup'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden')});
   }catch(_){}reviewCtx=null;try{document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML=''}catch(_){}try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
 
 function setType(type){submitType=type;document.getElementById('type-new').className='sticky-type-btn'+(type==='new'?' active-new':'');document.getElementById('type-sup').className='sticky-type-btn'+(type==='supplement'?' active-sup':'')}
@@ -1238,6 +1258,13 @@ function handleSubmit(){
   if(submitBusy)return;
   const empId=sanitizeId(document.getElementById('empId').value),empName=sanitize(document.getElementById('empName').value);
   if(!empId||!empName||collectAllImages().length===0)return;
+  document.getElementById('shrs-popup').classList.remove('hidden');
+}
+function closeShrs(){document.getElementById('shrs-popup').classList.add('hidden')}
+function showSubmitSummary(){
+  if(submitBusy)return;
+  const empId=sanitizeId(document.getElementById('empId').value),empName=sanitize(document.getElementById('empName').value);
+  if(!empId||!empName||collectAllImages().length===0)return;
   const dl={confirm:'진단서',receipt:'영수증',detail:'세부내역서'};
   let total=0,blurTotal=0,html='';
   for(const m of members){
@@ -1609,6 +1636,7 @@ function dragUp(e){
 // 폰에 아무것도 저장하지 않음: 최신 업데이트 날짜로부터 7일 동안만 알림 띠·주황 점 표시
 // ▶ 업데이트할 때 맨 위에 한 줄 추가 (d: 날짜, t: 내용, b: 알림 띠 문구)
 const UPDATES=[
+  {d:'2026-11-05',t:'⚠️ [전송]을 누르면 <b>SHRS 의료비 신청</b> 여부를 확인해요 — 이 앱은 서류 제출용이라 SHRS 신청을 따로 해야 해요',b:'이 앱은 <b>서류 제출용</b>이에요 · <b>SHRS 의료비 신청</b>도 꼭 해주세요'},
   {d:'2026-10-27',t:'📥 전송 완료 화면에서 <b>보낸 PDF를 내 폰에 저장</b>할 수 있어요 (보험 청구 등)',b:'<b>보낸 PDF</b>를 내 폰에 저장할 수 있어요'},
 ];
 const UPDATE_SHOW_DAYS=7;
