@@ -18,17 +18,31 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .container{max-width:480px;margin:0 auto;min-height:100vh;background:#F1F3F7}
 .hidden{display:none!important}
-.consent-wrap{padding:40px 24px;display:flex;flex-direction:column;align-items:center;min-height:100vh;justify-content:center;animation:fadeUp .5s ease}
+.consent-wrap{padding:32px 20px;display:flex;flex-direction:column;align-items:center;min-height:100vh;justify-content:center;animation:fadeUp .5s ease}
 .consent-shield{width:72px;height:72px;border-radius:50%;background:#EFF6FF;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:2px solid #BFDBFE}
-.consent-title{font-size:20px;font-weight:800;color:#0F2940;text-align:center}
-.consent-sub{font-size:12px;color:#64748B;margin-top:4px;text-align:center}
-.consent-body{background:#fff;border-radius:16px;width:100%;box-shadow:0 1px 4px rgba(0,0,0,.06);margin:24px 0}
+.consent-title{font-size:22px;letter-spacing:-.03em;font-weight:800;color:#0F2940;text-align:center}
+.consent-sub{font-size:13px;color:#64748B;margin-top:4px;text-align:center}
+.consent-body{background:#fff;border-radius:16px;width:100%;box-shadow:0 1px 4px rgba(0,0,0,.06);margin:12px 0;overflow:hidden}
 .consent-section{padding:14px 20px;border-bottom:1px solid #F1F5F9}
 .consent-section:last-child{border:none}
 .consent-label{font-size:11.5px;font-weight:750;color:#1D4ED8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
 .consent-text{font-size:13px;color:#475569;line-height:1.6}
 .consent-btn{width:100%;padding:16px;font-size:16px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:14px;box-shadow:0 4px 16px rgba(37,99,235,.35)}
-.consent-footer{font-size:10.5px;color:#A0AEC0;margin-top:14px;text-align:center}
+.cs-logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 6px 16px rgba(37,99,235,.3)}
+.cs-steps{display:flex;gap:6px;width:100%;margin-top:18px}
+.cs-steps div{flex:1;background:#fff;border-radius:12px;padding:10px 4px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.cs-steps b{display:block;font-size:20px;margin-bottom:4px}
+.cs-steps span{font-size:11.5px;font-weight:700;color:#334155}
+.cs-h{font-size:13px;font-weight:800;color:#0F2940;padding:14px 16px 4px}
+.cs-row{display:flex;gap:12px;padding:10px 16px;border-top:1px solid #F1F5F9;align-items:flex-start}
+.cs-h+.cs-row{border-top:none}
+.cs-k{flex:0 0 58px;font-size:12px;font-weight:700;color:#64748B;padding-top:1px}
+.cs-v{font-size:13.5px;line-height:1.55;color:#1E293B}
+.cs-v small{display:block;font-size:12px;color:#94A3B8}
+.cs-warn{width:100%;margin-bottom:16px;background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;text-align:left}
+.cs-warn b{display:block;font-size:14.5px;color:#B91C1C}
+.cs-warn span{font-size:12px;color:#7F1D1D}
+.consent-footer{font-size:11px;color:#94A3B8;margin-top:10px;text-align:center}
 .header{background:linear-gradient(160deg,#0C1929,#162D50 60%,#1E3A5F);position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(12,25,41,.35)}
 .header-inner{padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:12px}
@@ -197,17 +211,24 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 <body>
 <div class="container" id="app">
   <div id="consent-screen" class="consent-wrap">
-    <div class="consent-shield"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-    <div class="consent-title">개인정보 수집·이용 동의</div>
-    <div class="consent-sub">신세계푸드 의료비 제출 시스템</div>
-    <div class="consent-body">
-      <div class="consent-section"><div class="consent-label">수집 항목</div><div class="consent-text">사번, 성명, 의료비 증빙서류 이미지 (서류 내 포함: 생년월일, 주소, 병명·진단내역)<br><span style="color:#DC2626;font-weight:700;">※ 주민번호 뒷자리는 가려서 제출</span></div></div>
-      <div class="consent-section"><div class="consent-label">수집 목적</div><div class="consent-text">의료비 복리후생 정산 처리</div></div>
-      <div class="consent-section"><div class="consent-label">처리 방식</div><div class="consent-text">기기 내에서 이미지 보정 및 PDF 변환 후 HTTPS 암호화 전송. 브라우저에 쿠키·저장소 데이터가 일절 저장되지 않으며, 브라우저 종료 시 모든 데이터가 즉시 소멸됩니다.</div></div>
-      <div class="consent-section" style="border:none"><div class="consent-label">거부 권리</div><div class="consent-text">동의를 거부할 수 있으며, 거부 시 서류를 기존 우편 방식으로 제출하실 수 있습니다.</div></div>
+    <div class="cs-logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <div class="consent-title">의료비 서류 제출</div>
+    <div class="consent-sub">신세계푸드 · 등기 대신 폰으로 바로 제출해요</div>
+    <div class="cs-steps">
+      <div><b>📷</b><span>서류 촬영</span></div>
+      <div><b>📄</b><span>PDF 자동 변환</span></div>
+      <div><b>📨</b><span>담당자에게 전송</span></div>
     </div>
+    <div class="consent-body">
+      <div class="cs-h">🔒 개인정보 수집·이용 동의</div>
+      <div class="cs-row"><div class="cs-k">수집 항목</div><div class="cs-v">사번, 이름, 의료비 서류 사진<small>서류 안의 생년월일·주소·병명 포함</small></div></div>
+      <div class="cs-row"><div class="cs-k">목적</div><div class="cs-v">의료비 복리후생 정산</div></div>
+      <div class="cs-row"><div class="cs-k">처리</div><div class="cs-v"><b style="color:#047857">폰에 저장하지 않아요</b><small>폰 안에서 PDF로 만들어 암호화 전송 · 창을 닫으면 모두 지워져요</small></div></div>
+      <div class="cs-row"><div class="cs-k">거부 시</div><div class="cs-v">기존처럼 등기로 제출할 수 있어요</div></div>
+    </div>
+    <div class="cs-warn"><div style="font-size:24px">✋</div><div><b>주민번호 뒷자리는 가리고 찍어주세요</b><span>포스트잇이나 손가락으로 가린 뒤 촬영</span></div></div>
     <button class="consent-btn" onclick="showPrivacyAlert()">동의하고 시작하기</button>
-    <div class="consent-footer">본 동의는 현재 세션에만 유효하며 별도 저장되지 않습니다</div>
+    <div class="consent-footer">동의는 이번 접속에만 쓰이고 저장되지 않아요</div>
   </div>
 
   <div id="main-screen" class="hidden">
