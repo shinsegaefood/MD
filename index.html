@@ -7,6 +7,11 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>신세계푸드 의료비 제출</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="의료비 제출">
+<meta name="theme-color" content="#0C1929">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
 body{background:#F1F3F7;font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;color:#1E293B}
@@ -28,6 +33,76 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 .consent-label{font-size:11.5px;font-weight:750;color:#1D4ED8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
 .consent-text{font-size:13px;color:#475569;line-height:1.6}
 .consent-btn{width:100%;padding:16px;font-size:16px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:14px;box-shadow:0 4px 16px rgba(37,99,235,.35)}
+.hd-btns{display:flex;gap:6px;align-items:stretch;flex:1 1 100%}
+.hd-btns button{white-space:nowrap;flex:1;justify-content:center;font-size:12px;padding:8px 4px}
+.cs-how{width:100%;margin-top:10px;padding:13px;font-size:14px;font-weight:800;color:#1D4ED8;background:#fff;border:1.5px solid #BFDBFE;border-radius:14px;font-family:inherit;cursor:pointer}
+.add-btn.nudge{animation:htPulse 1s ease 4;border-color:#F97316!important;color:#C2410C!important;background:#FFF7ED!important}
+@keyframes htPulse{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.55)}50%{box-shadow:0 0 0 9px rgba(249,115,22,0)}}
+/* 사용방법 애니메이션 */
+.ht-sheet{background:#fff;border-radius:20px;width:94%;max-width:370px;max-height:94vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease}
+.ht-top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+.ht-top b{font-size:16px;color:#0F2940}
+.ht-x{width:30px;height:30px;border:none;background:#F1F5F9;border-radius:9px;font-size:14px;color:#64748B;cursor:pointer}
+.ht-phone{width:250px;height:384px;margin:0 auto;border:6px solid #0F172A;border-radius:26px;background:#F1F3F7;overflow:hidden;position:relative}
+.ht-scroll{position:relative;transition:transform .6s ease;padding-bottom:10px}
+.ht-hd{background:linear-gradient(160deg,#0C1929,#1E3A5F);color:#fff;font-size:11px;font-weight:800;padding:9px 10px}
+.ht-hd small{font-weight:500;color:rgba(255,255,255,.5);margin-left:4px;font-size:9px}
+.ht-sb{display:flex;gap:4px;padding:7px 8px;background:#fff;border-bottom:1px solid #E2E8F0}
+.ht-f{flex:1;height:24px;border:1.2px solid #E2E8F0;border-radius:6px;font-size:10px;color:#94A3B8;display:flex;align-items:center;padding:0 6px;background:#fff;transition:all .3s}
+.ht-f.fill{color:#0F2940;font-weight:700;border-color:#93C5FD}
+.ht-new{flex:none;height:24px;border-radius:6px;background:#1D4ED8;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;padding:0 7px}
+.ht-card{margin:8px;background:#fff;border-radius:10px;padding:8px;border-left:3px solid #1D4ED8;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ht-badge{display:inline-block;font-size:9px;font-weight:800;color:#fff;background:#1D4ED8;border-radius:6px;padding:2px 8px;margin-bottom:6px}
+.ht-hosp{border:1.2px solid #E2E8F0;border-radius:8px;padding:6px;margin-bottom:6px}
+.ht-hosp.h2{max-height:0;opacity:0;padding-top:0;padding-bottom:0;margin-bottom:0;border-width:0;overflow:hidden;transition:all .6s ease}
+.ht-hosp.h2.open{max-height:170px;opacity:1;padding:6px;margin-bottom:6px;border-width:1.2px;border-color:#F97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+.ht-types{display:flex;gap:4px;margin:5px 0}
+.ht-types span{flex:1;text-align:center;font-size:9px;font-weight:700;color:#64748B;border:1.2px solid #E2E8F0;border-radius:6px;padding:4px 0;transition:all .3s}
+.ht-types span.on{color:#1D4ED8;border-color:#1D4ED8;background:#EFF6FF}
+.ht-doc{display:flex;align-items:center;gap:4px;font-size:9.5px;color:#334155;font-weight:700;padding:4px 0;border-top:1px dashed #E2E8F0}
+.ht-doc em{margin-left:auto;font-style:normal;font-size:8.5px;font-weight:800;color:#047857;background:#ECFDF5;border-radius:8px;padding:1px 6px;opacity:0;transform:scale(.5);transition:all .3s}
+.ht-doc em.on{opacity:1;transform:none}
+.ht-doc i{font-style:normal;font-size:8.5px;font-weight:800;color:#fff;background:#2563EB;border-radius:5px;padding:3px 6px}
+.ht-add{font-size:10px;font-weight:800;color:#1D4ED8;text-align:center;border:1.5px dashed #93C5FD;border-radius:8px;padding:7px 0;background:#EFF6FF;transition:all .3s}
+.ht-add.hot{border-color:#F97316;color:#C2410C;background:#FFF7ED;animation:htPulse 1s ease infinite}
+.ht-addm{margin:0 8px 6px;font-size:10px;font-weight:800;color:#7C3AED;text-align:center;border:1.5px dashed #C4B5FD;border-radius:8px;padding:7px 0;background:#FAF5FF;transition:all .3s}
+.ht-addm.hot{border-color:#F97316;color:#C2410C;background:#FFF7ED;animation:htPulse 1s ease infinite}
+.ht-card.m2{border-left-color:#7C3AED;max-height:0;opacity:0;margin-top:0;margin-bottom:0;padding-top:0;padding-bottom:0;overflow:hidden;transition:all .6s ease}
+.ht-card.m2.open{max-height:200px;opacity:1;margin:0 8px 8px;padding:8px;box-shadow:0 0 0 3px rgba(124,58,237,.18)}
+.ht-card.m2 .ht-badge{background:#7C3AED}
+.ht-send{margin:4px 8px 0;text-align:center;font-size:11px;font-weight:800;color:#fff;background:#CBD5E1;border-radius:9px;padding:10px 0;transition:all .3s}
+.ht-send.ready{background:linear-gradient(135deg,#1D4ED8,#2563EB)}
+.ht-done{position:absolute;inset:0;background:rgba(255,255,255,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:0;pointer-events:none;transition:opacity .4s}
+.ht-done.on{opacity:1}
+.ht-done b{font-size:15px;color:#047857}
+.ht-done span{font-size:11px;color:#334155;font-weight:700}
+.ht-done u{text-decoration:none;font-size:10px;color:#9A3412;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:5px 9px;margin-top:6px}
+.ht-warn{position:absolute;inset:0;background:rgba(255,251,235,.97);display:flex;flex-direction:column;justify-content:center;gap:9px;padding:0 18px;opacity:0;pointer-events:none;transition:opacity .4s}
+.ht-warn.on{opacity:1}
+.ht-warn b{font-size:15px;color:#9A3412;text-align:center;margin-bottom:4px}
+.ht-warn span{font-size:11.5px;font-weight:700;color:#334155;background:#fff;border:1px solid #FED7AA;border-radius:9px;padding:8px 10px;line-height:1.45}
+.ht-warn u{text-decoration:none;color:#DC2626}
+.ht-warn small{font-weight:500;color:#64748B;font-size:10px}
+.ht-finger{position:absolute;left:0;top:0;font-size:26px;line-height:1;transition:transform .55s ease,opacity .3s;opacity:0;pointer-events:none;z-index:5;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.ht-finger.tap{animation:htTap .35s ease}
+@keyframes htTap{50%{scale:.78}}
+.ht-cap{margin:10px 16px 0;min-height:66px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.5;color:#1E293B;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.ht-cap.key{background:#FFF7ED;border-color:#FDBA74}
+.ht-cap b{color:#1D4ED8}.ht-cap.key b{color:#C2410C}
+.ht-cap small{display:block;font-size:11.5px;color:#64748B;margin-top:2px}
+.ht-dots{display:flex;gap:5px;justify-content:center;margin-top:9px}
+.ht-dots i{width:7px;height:7px;border-radius:50%;background:#E2E8F0;transition:all .3s}
+.ht-dots i.on{background:#2563EB;width:18px;border-radius:4px}
+.ht-ctl{display:flex;gap:6px;padding:10px 16px 16px}
+.ht-ctl button{flex:1;padding:11px 0;font-size:13px;font-weight:700;color:#475569;background:#F1F5F9;border:none;border-radius:10px;font-family:inherit;cursor:pointer}
+.ht-ctl button.p{flex:1.2;color:#fff;background:#2563EB}
+.hs-box details{border:1px solid #E2E8F0;border-radius:10px;margin-bottom:6px;background:#fff}
+.hs-box summary{list-style:none;padding:10px 12px;font-size:13px;font-weight:800;color:#0F2940;cursor:pointer;display:flex;justify-content:space-between}
+.hs-box summary::-webkit-details-marker{display:none}
+.hs-box summary::after{content:'＋';color:#94A3B8}
+.hs-box details[open] summary::after{content:'－'}
+.hs-box ol{margin:0;padding:0 12px 10px 30px;font-size:12.5px;line-height:1.75;color:#334155}
+.hs-box li b{color:#0F2940}
 .cs-logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 6px 16px rgba(37,99,235,.3)}
 .cs-steps{display:flex;gap:6px;width:100%;margin-top:18px}
 .cs-steps div{flex:1;background:#fff;border-radius:12px;padding:10px 4px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
@@ -44,7 +119,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 .cs-warn span{font-size:12px;color:#7F1D1D}
 .consent-footer{font-size:11px;color:#94A3B8;margin-top:10px;text-align:center}
 .header{background:linear-gradient(160deg,#0C1929,#162D50 60%,#1E3A5F);position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(12,25,41,.35)}
-.header-inner{padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.header-inner{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 10px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(59,130,246,.5),rgba(59,130,246,.2));display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.1)}
 .brand-name{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.03em}
@@ -169,7 +244,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 .gd-tab{flex:1;border:none;background:transparent;padding:10px 0;font-size:14px;font-weight:700;color:#64748B;border-radius:8px;cursor:pointer;font-family:inherit}
 .gd-tab.on{background:#fff;color:#0F172A;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .gd-new{font-size:9.5px;background:#F97316;color:#fff;border-radius:6px;padding:1px 5px;margin-left:4px;vertical-align:2px}
-.gd-pane{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px calc(20px + env(safe-area-inset-bottom));display:none}
+.gd-pane{flex:1;margin-top:8px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px calc(20px + env(safe-area-inset-bottom));display:none}
 .gd-pane.on{display:block}
 .gd-pane details{border:1px solid #E2E8F0;border-radius:12px;margin-bottom:8px;background:#fff}
 .gd-pane summary{list-style:none;padding:13px 14px;font-weight:800;font-size:14.5px;cursor:pointer;display:flex;justify-content:space-between;color:#0F172A}
@@ -228,18 +303,17 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
     </div>
     <div class="cs-warn"><div style="font-size:24px">✋</div><div><b>주민번호 뒷자리는 가리고 찍어주세요</b><span>포스트잇이나 손가락으로 가린 뒤 촬영</span></div></div>
     <button class="consent-btn" onclick="showPrivacyAlert()">동의하고 시작하기</button>
+    <button class="cs-how" onclick="openHowto()">▶ 사용방법 먼저 보기 (30초)</button>
     <div class="consent-footer">동의는 이번 접속에만 쓰이고 저장되지 않아요</div>
   </div>
 
   <div id="main-screen" class="hidden">
     <div class="header"><div class="header-inner">
       <div class="brand"><div class="brand-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="brand-name">신세계푸드</div><div class="brand-sub">의료비 제출 시스템</div></div></div>
-      <div style="display:flex;gap:6px;align-items:center;">
-      <button class="gd-hb" onclick="openGuide('guide')">📋 <span>의료비 안내/공지사항</span><span id="gd-dot" class="gd-dot hidden"></span></button>
-      <button onclick="openInfoPopup()" style="display:flex;align-items:center;gap:5px;color:#fff;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.15);font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span>도움말</span>
-      </button>
+      <div class="hd-btns">
+      <button class="gd-hb" onclick="openGuide('guide')">📋 <span>의료비 안내</span></button>
+      <button class="gd-hb" onclick="openGuide('update')">🆕 <span>업데이트 내역</span><span id="gd-dot" class="gd-dot hidden"></span></button>
+      <button class="gd-hb" onclick="openHowto()">▶ <span>사용방법</span></button>
       </div>
     </div></div>
 
@@ -275,7 +349,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
         <span id="submit-text">PDF 변환 및 전송</span>
       </button>
 
-      <div class="footer" style="padding-top:14px;">🔒 안전한 HTTPS 암호화 전송 · 쿠키 미사용<br><span style="margin-top:4px;display:inline-block;">자세한 안내는 상단 <b>도움말</b> 버튼을 눌러주세요</span></div>
+      <div class="footer" style="padding-top:14px;">🔒 안전한 HTTPS 암호화 전송 · 쿠키 미사용<br><span style="margin-top:4px;display:inline-block;">자세한 안내는 상단 <b>사용방법</b> 버튼을 눌러주세요</span></div>
     </div>
   </div>
 </div>
@@ -328,40 +402,6 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
-<div id="info-popup" class="overlay hidden" onclick="closeInfoPopup()">
-  <div style="background:#fff;border-radius:20px;width:92%;max-width:400px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;" onclick="event.stopPropagation()">
-    <div style="padding:18px 20px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-size:16px;font-weight:800;color:#0F2940;">ℹ️ 도움말</div>
-      <button onclick="closeInfoPopup()" style="width:28px;height:28px;border:none;background:#F1F5F9;border-radius:8px;font-size:14px;cursor:pointer;color:#64748B;">✕</button>
-    </div>
-    <div style="padding:18px 20px;">
-      <div style="font-size:13px;font-weight:800;color:#1D4ED8;margin-bottom:10px;">📋 이용방법</div>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-        <div class="step"><span class="sn">1</span>사번과 이름을 입력합니다</div>
-        <div class="step"><span class="sn">2</span>신규서류/누락서류 유형을 선택합니다</div>
-        <div class="step"><span class="sn">3</span><div>서류를 종류별로 촬영합니다<br><span style="font-size:11px;color:#94A3B8;">진료확인서 → 영수증(약제비 포함) → 세부내역서 순</span></div></div>
-        <div class="step"><span class="sn">4</span>전송 버튼을 누르면 PDF로 자동 변환됩니다</div>
-      </div>
-      <div style="font-size:13px;font-weight:800;color:#1D4ED8;margin-bottom:10px;">📱 작성 중 주의사항</div>
-      <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:12px 14px;margin-bottom:16px;">
-        <div style="font-size:11.5px;color:#9A3412;line-height:1.7;font-weight:600;">
-          ✅ <b>브라우저는 닫지 마세요</b> (자동 저장 없음)<br>
-          ✅ 폰 화면이 잠시 꺼져도 OK<br>
-          ✅ 다른 앱으로 잠깐 전환해도 OK<br>
-          ⏱️ 30분간 작업 안 하면 자동 초기화됩니다<br>
-          💡 업로드 중 화면이 안 꺼지도록 자동 설정됨
-        </div>
-      </div>
-      <div style="font-size:13px;font-weight:800;color:#1D4ED8;margin-bottom:10px;">🔒 보안 정보</div>
-      <div class="sec-info" style="margin-bottom:16px;">
-        <div class="sec-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>브라우저 저장소(쿠키·로컬스토리지) 미사용</span></div>
-        <div class="sec-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><span>HTTPS 암호화 전송</span></div>
-        <div class="sec-row"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><span>30분 무활동 시 자동 데이터 삭제</span></div>
-      </div>
-      <div style="font-size:11px;color:#94A3B8;text-align:center;line-height:1.6;">사진은 기기 내에서만 보정 처리되며<br>원본은 서버에 전송되지 않습니다</div>
-    </div>
-  </div>
-</div>
 
 <div id="family-popup" class="overlay hidden">
   <div style="background:#fff;border-radius:20px;width:90%;max-width:340px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;">
@@ -442,6 +482,112 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
+<div id="howto-popup" class="overlay hidden" onclick="if(event.target===this)closeHowto()">
+  <div class="ht-sheet">
+    <div class="ht-top"><b>▶ 사용방법</b><button class="ht-x" onclick="closeHowto()" aria-label="닫기">✕</button></div>
+    <div class="gd-tabs" style="margin:0 16px 12px">
+      <button class="gd-tab" id="ht-t-app" onclick="howtoTab('app')">① 앱 사용법</button>
+      <button class="gd-tab" id="ht-t-home" onclick="howtoTab('home')">② 홈 화면 추가법</button>
+    </div>
+    <div id="ht-p-home" class="hidden" style="padding:0 16px 18px">
+      <div style="font-size:12.5px;color:#64748B;margin-bottom:10px;line-height:1.5;">홈 화면에 추가해두면 다음부터 <b style="color:#0F2940">아이콘만 누르면</b> 바로 열려요</div>
+      <div class="hs-box">
+        <details id="hs-chrome"><summary>안드로이드 · 크롬</summary><ol>
+          <li>오른쪽 위 <b>⋮</b> (점 3개) 누르기</li>
+          <li><b>홈 화면에 추가</b> 누르기</li>
+          <li><b>[추가]</b> 누르기</li></ol></details>
+        <details id="hs-samsung"><summary>안드로이드 · 삼성 인터넷</summary><ol>
+          <li>오른쪽 아래 <b>≡</b> (줄 3개) 누르기</li>
+          <li><b>현재 페이지 추가</b> 누르기</li>
+          <li><b>홈 화면</b> 누르기</li></ol></details>
+        <details id="hs-ios"><summary>아이폰 · 사파리</summary><ol>
+          <li>화면 아래 <b>공유 버튼</b> (네모에서 화살표가 위로) 누르기</li>
+          <li>아래로 내려 <b>홈 화면에 추가</b> 누르기</li>
+          <li><b>[추가]</b> 누르기</li></ol></details>
+        <div style="font-size:11px;color:#9A3412;background:#FFF7ED;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.5;">카카오톡에서 연 화면에서는 안 돼요. 오른쪽 위 메뉴에서 <b>다른 브라우저로 열기</b>를 먼저 눌러주세요.</div>
+      </div>
+    </div>
+    <div id="ht-p-app">
+    <div class="ht-phone" id="ht-phone">
+      <div class="ht-scroll" id="ht-scroll">
+        <div class="ht-hd">신세계푸드<small>의료비 제출</small></div>
+        <div class="ht-sb"><span class="ht-f" id="ht-id">사번</span><span class="ht-f" id="ht-nm">이름</span><span class="ht-new">신규서류</span></div>
+        <div class="ht-card">
+          <div class="ht-badge">본인</div>
+          <div class="ht-hosp">
+            <div class="ht-f" id="ht-h1">🏥 병원명</div>
+            <div class="ht-types"><span id="ht-t1">🆕 최초신청</span><span>🔁 재진</span></div>
+            <div class="ht-doc">📄 진단서<em>1장</em><i id="ht-b1">📷 첨부</i></div>
+            <div class="ht-doc">🧾 영수증<em>2장</em><i>📷 첨부</i></div>
+            <div class="ht-doc">📑 세부내역서<em>3장</em><i>📷 첨부</i></div>
+          </div>
+          <div class="ht-hosp h2" id="ht-hosp2">
+            <div class="ht-f" id="ht-h2">🏥 병원명</div>
+            <div class="ht-types"><span>🆕 최초신청</span><span id="ht-t2">🔁 재진</span></div>
+            <div class="ht-doc">📄 진단서<em>-</em><i>📷 첨부</i></div>
+            <div class="ht-doc">🧾 영수증<em>1장</em><i id="ht-b2">📷 첨부</i></div>
+            <div class="ht-doc">📑 세부내역서<em>2장</em><i>📷 첨부</i></div>
+          </div>
+          <div class="ht-add" id="ht-add">+ 병원 추가</div>
+        </div>
+        <div class="ht-card m2" id="ht-m2">
+          <div class="ht-badge">배우자</div>
+          <div class="ht-hosp" style="margin-bottom:0">
+            <div class="ht-f" id="ht-h3">🏥 병원명</div>
+            <div class="ht-types"><span id="ht-t3">🆕 최초신청</span><span>🔁 재진</span></div>
+            <div class="ht-doc">📄 진단서<em>1장</em><i>📷 첨부</i></div>
+            <div class="ht-doc">🧾 영수증<em>1장</em><i>📷 첨부</i></div>
+            <div class="ht-doc">📑 세부내역서<em>1장</em><i>📷 첨부</i></div>
+          </div>
+        </div>
+        <div class="ht-addm" id="ht-addm">+ 가족 추가 (배우자, 자녀 등)</div>
+        <div class="ht-send" id="ht-send">PDF 변환 및 전송</div>
+      </div>
+      <div class="ht-done" id="ht-done"><div style="font-size:34px">✅</div><b>전송 완료</b><span>본인 병원 2곳 + 배우자 → PDF 1개</span><u>SHRS 의료비 신청도 잊지 마세요</u></div>
+      <div class="ht-warn" id="ht-warn"><b>⚠️ 작성하는 동안</b>
+        <span>🚫 <u>창(브라우저)을 닫지 마세요</u><br><small>폰에 저장하지 않아 닫으면 사라져요</small></span>
+        <span>✅ 화면이 잠깐 꺼져도 괜찮아요</span>
+        <span>✅ 다른 앱을 잠깐 봐도 괜찮아요</span>
+        <span>⏱ 30분 동안 안 쓰면 자동으로 지워져요</span></div>
+      <div class="ht-finger" id="ht-finger">👆</div>
+    </div>
+    <div class="ht-cap" id="ht-cap"></div>
+    <div class="ht-dots" id="ht-dots"></div>
+    <div class="ht-ctl">
+      <button onclick="howtoGo(-1)">◀ 이전</button>
+      <button id="ht-pause" onclick="howtoPause()">⏸ 멈춤</button>
+      <button class="p" onclick="howtoGo(1)">다음 ▶</button>
+    </div>
+    </div>
+  </div>
+</div>
+
+<div id="resend-popup" class="overlay hidden">
+  <div style="background:#fff;border-radius:18px;width:90%;max-width:360px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;">
+    <div style="padding:22px 22px 4px;text-align:center;">
+      <div style="font-size:30px;line-height:1;">📨</div>
+      <div style="font-size:17px;font-weight:800;color:#1E293B;margin-top:10px;">방금 서류를 보내셨어요</div>
+      <div style="font-size:13.5px;color:#475569;line-height:1.65;margin-top:8px;">병원이 여러 곳이면 나눠 보내지 말고<br><b style="color:#C2410C">[+ 병원 추가]로 한 번에</b> 보내주세요.</div>
+      <div style="margin-top:10px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:9px 12px;font-size:12px;color:#64748B;line-height:1.55;">빠뜨린 서류를 더 보내는 거라면<br>위에서 <b style="color:#0F2940">[누락서류]</b>를 선택해주세요</div>
+    </div>
+    <div style="padding:16px;"><button onclick="closeResend()" style="width:100%;padding:13px;font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:12px;font-family:inherit;">확인했어요</button></div>
+  </div>
+</div>
+
+<div id="leave-popup" class="overlay hidden">
+  <div style="background:#fff;border-radius:18px;width:90%;max-width:360px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;">
+    <div style="padding:22px 22px 6px;text-align:center;">
+      <div style="font-size:30px;line-height:1;">⚠️</div>
+      <div style="font-size:17px;font-weight:800;color:#1E293B;margin-top:10px;">나가면 작성한 내용이 지워져요</div>
+      <div style="font-size:13.5px;color:#475569;line-height:1.6;margin-top:8px;">찍은 사진 <b id="leave-count" style="color:#DC2626">0장</b>이 모두 사라져요.<br>개인정보 보호를 위해 폰에 저장하지 않기 때문이에요.</div>
+    </div>
+    <div style="padding:16px;display:flex;gap:8px;">
+      <button onclick="leaveNow()" style="flex:1;padding:13px;font-size:14px;font-weight:700;color:#475569;background:#F1F5F9;border:none;border-radius:12px;font-family:inherit;">나가기</button>
+      <button onclick="closeLeave()" style="flex:1.5;padding:13px;font-size:14px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1D4ED8,#2563EB);border:none;border-radius:12px;font-family:inherit;">계속 작성하기</button>
+    </div>
+  </div>
+</div>
+
 <div id="shrs-popup" class="overlay hidden">
   <div style="background:#fff;border-radius:18px;width:92%;max-width:380px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);animation:fadeUp .3s ease;">
     <div style="background:#FFF7ED;padding:18px 20px 14px;text-align:center;border-bottom:1px solid #FED7AA;">
@@ -453,6 +599,11 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
       <b style="color:#DC2626;">SHRS에서 의료비 신청(결재상신)을 따로 해야</b> 지원금이 처리돼요.
       <div style="margin-top:10px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#475569;">
         📍 SHRS › 나의복리후생 › <b>의료비신청</b> → 결재상신
+      </div>
+      <div style="margin-top:10px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:10px 12px;">
+        <div style="font-size:13px;font-weight:800;color:#9A3412;">🏥 다른 병원 서류도 있나요?</div>
+        <div style="font-size:12px;color:#7C2D12;margin-top:2px;">나눠 보내지 말고 한 번에 보내주세요</div>
+        <button onclick="closeShrs();nudgeAddHospital()" style="margin-top:8px;width:100%;padding:9px;font-size:13px;font-weight:800;color:#C2410C;background:#fff;border:1.5px solid #FDBA74;border-radius:9px;font-family:inherit;">+ 병원 추가하러 가기</button>
       </div>
     </div>
     <div style="padding:14px 16px 16px;display:flex;gap:8px;">
@@ -475,11 +626,7 @@ button:active{transform:scale(.97)}button{font-family:inherit;cursor:pointer}
 
 <div id="guide-popup" class="hidden" onclick="if(event.target===this)closeGuide()">
   <div class="gd-sheet">
-    <div class="gd-head"><h3>📋 안내</h3><button class="gd-close" onclick="closeGuide()" aria-label="닫기">✕</button></div>
-    <div class="gd-tabs">
-      <button class="gd-tab" id="gd-t-guide" onclick="guideTab('guide')">의료비 안내</button>
-      <button class="gd-tab" id="gd-t-update" onclick="guideTab('update')">업데이트 소식<span class="gd-new hidden" id="gd-tabnew">NEW</span></button>
-    </div>
+    <div class="gd-head"><h3 id="gd-title">📋 의료비 안내</h3><button class="gd-close" onclick="closeGuide()" aria-label="닫기">✕</button></div>
     <div class="gd-pane" id="gd-p-guide">
       <details open><summary>① 신청 방법</summary><ul>
         <li>SHRS › 나의복리후생 › <b>의료비신청</b> 결재상신 후 서류 제출</li>
@@ -609,14 +756,14 @@ function confirmPrivacyAlert(){closePrivacyAlert();agreeAndStart();setTimeout(()
 function closeOrderPopup(){document.getElementById('order-popup').classList.add('hidden')}
 function closeCompletePopup(){document.getElementById('complete-popup').classList.add('hidden');secureCleanup();releaseWakeLock();initState();document.getElementById('empId').value='';document.getElementById('empName').value='';document.getElementById('submit-text').textContent='PDF 변환 및 전송';checkSubmit()}
 
-function agreeAndStart(){showScreen('main-screen');initState();checkServerStatus();renderUpdates();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
+function agreeAndStart(){showScreen('main-screen');syncHeaderHeight();armBackGuard();initState();checkServerStatus();renderUpdates();resetTimer();requestWakeLock();['mousedown','touchstart','keydown','scroll'].forEach(e=>window.addEventListener(e,resetTimer))}
 function resetTimer(){document.getElementById('timeout-warn').classList.add('hidden');if(warningTimer)clearTimeout(warningTimer);if(sessionTimer)clearTimeout(sessionTimer);warningTimer=setTimeout(()=>document.getElementById('timeout-warn').classList.remove('hidden'),SESSION_TIMEOUT_MS-60000);sessionTimer=setTimeout(()=>{secureCleanup();releaseWakeLock();initState();showScreen('consent-screen')},SESSION_TIMEOUT_MS)}
 function secureCleanup(){pendingPayload=null;myPdf=null;
   try{const li=document.getElementById('cam-last-img');if(li)li.removeAttribute('src');
     ['cf-body','cf-who'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=''});
     const cc=document.getElementById('crop-canvas');if(cc){cc.width=1;cc.height=1}
     const g=document.getElementById('drag-ghost');if(g)g.remove();
-    ['shrs-popup','confirm-popup','fail-popup','more-popup','crop-popup'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden')});
+    ['leave-popup','shrs-popup','confirm-popup','fail-popup','more-popup','crop-popup'].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('hidden')});
   }catch(_){}reviewCtx=null;try{document.getElementById('review-popup').classList.add('hidden');document.getElementById('rv-body').innerHTML=''}catch(_){}try{stopCamStream()}catch(_){}try{document.getElementById('cam-popup').classList.add('hidden')}catch(_){}for(const m of members)for(const h of m.hospitals)for(const t of['confirm','receipt','detail']){for(const d of h.docs[t]){d.original=null;d.processed=null}h.docs[t].length=0}}
 
 function setType(type){submitType=type;document.getElementById('type-new').className='sticky-type-btn'+(type==='new'?' active-new':'');document.getElementById('type-sup').className='sticky-type-btn'+(type==='supplement'?' active-sup':'')}
@@ -1069,6 +1216,7 @@ setTimeout(()=>{
 },500);
 
 function openSourcePicker(mid,hid,type){
+  if(sentThisVisit>0&&!resendNoted){resendNoted=true;resendPick=[mid,hid,type];document.getElementById('resend-popup').classList.remove('hidden');return}
   pendingUpload={mid,hid,type};
   const tip=document.getElementById('shoot-tip');
   if(tip)tip.classList.toggle('hidden',type!=='detail');
@@ -1089,8 +1237,6 @@ function afterEditPrompt(){
 let moreCtx=null;
 function closeMorePrompt(){document.getElementById('more-popup').classList.add('hidden');moreCtx=null}
 function moreShoot(){const a=moreCtx;closeMorePrompt();if(!a)return;pendingUpload={mid:a.mid,hid:a.hid,type:a.type};lastSource='camera';document.getElementById('cameraInput').click()}
-function openInfoPopup(){document.getElementById('info-popup').classList.remove('hidden')}
-function closeInfoPopup(){document.getElementById('info-popup').classList.add('hidden')}
 
 function triggerUpload(mid,hid,type){pendingUpload={mid,hid,type};document.getElementById('fileInput').click()}
 function triggerCamera(mid,hid,type){pendingUpload={mid,hid,type};document.getElementById('cameraInput').click()}
@@ -1657,6 +1803,7 @@ function dragUp(e){
 // 폰에 아무것도 저장하지 않음: 최신 업데이트 날짜로부터 7일 동안만 알림 띠·주황 점 표시
 // ▶ 업데이트할 때 맨 위에 한 줄 추가 (d: 날짜, t: 내용, b: 알림 띠 문구)
 const UPDATES=[
+  {d:'2026-11-11',t:'▶ <b>사용방법</b> 버튼으로 움직이는 설명을 볼 수 있어요 · 병원이 여러 곳이면 <b>+ 병원 추가</b>로 <b>한 번에</b> 보내주세요',b:'병원이 여러 곳이면 <b>+ 병원 추가</b>로 <b>한 번에</b> 보내주세요'},
   {d:'2026-11-05',t:'⚠️ [전송]을 누르면 <b>SHRS 의료비 신청</b> 여부를 확인해요 — 이 앱은 서류 제출용이라 SHRS 신청을 따로 해야 해요',b:'이 앱은 <b>서류 제출용</b>이에요 · <b>SHRS 의료비 신청</b>도 꼭 해주세요'},
   {d:'2026-10-27',t:'📥 전송 완료 화면에서 <b>보낸 PDF를 내 폰에 저장</b>할 수 있어요 (보험 청구 등)',b:'<b>보낸 PDF</b>를 내 폰에 저장할 수 있어요'},
 ];
@@ -1671,14 +1818,13 @@ function renderUpdates(){
   const fresh=updateIsFresh();
   document.getElementById('gd-p-update').innerHTML=UPDATES.map((u,i)=>{const [,m,d]=u.d.split('-');return `<div class="gd-up"><div class="d">${+m}.${d}${i===0&&fresh?'<span class="nw">NEW</span>':''}</div><div class="t">${u.t}</div></div>`}).join('')+
     '<div class="gd-note">새 업데이트가 생기면 1주일 동안 화면 맨 위에 주황색 알림으로 알려드려요.</div>';
-  document.getElementById('gd-tabnew').classList.toggle('hidden',!fresh);
   document.getElementById('gd-dot').classList.toggle('hidden',!fresh);
   const bn=document.getElementById('upd-banner');
   if(fresh&&UPDATES[0].b){document.getElementById('upd-banner-text').innerHTML=UPDATES[0].b;bn.classList.remove('hidden')}else bn.classList.add('hidden');
 }
 function openGuide(t){document.getElementById('guide-popup').classList.remove('hidden');guideTab(t||'guide');if(t==='update')document.getElementById('upd-banner').classList.add('hidden')}
 function closeGuide(){document.getElementById('guide-popup').classList.add('hidden')}
-function guideTab(t){['guide','update'].forEach(k=>{document.getElementById('gd-t-'+k).classList.toggle('on',k===t);document.getElementById('gd-p-'+k).classList.toggle('on',k===t)})}
+function guideTab(t){document.getElementById('gd-title').textContent=t==='update'?'🆕 업데이트 내역':'📋 의료비 안내';['guide','update'].forEach(k=>document.getElementById('gd-p-'+k).classList.toggle('on',k===t))}
 function closeSubmitConfirm(){document.getElementById('confirm-popup').classList.add('hidden')}
 
 // 서버 응답을 실제로 읽어서 저장 성공 여부를 확인한다.
@@ -1767,6 +1913,7 @@ async function doSubmit(){
       myPdf={blob:pendingPayload.blob,name:'MedicalClaim_'+pendingPayload.submitId+'.pdf'};
       pendingPayload=null;
       document.getElementById('complete-name').textContent=empId+' '+empName;
+      sentThisVisit++;resendNoted=false;
       document.getElementById('complete-popup').classList.remove('hidden');
     }else{
       document.getElementById('fail-detail').textContent='사유: '+r.why;
@@ -1815,7 +1962,128 @@ function saveMyPdf(){
 }
 function retrySubmit(){document.getElementById('fail-popup').classList.add('hidden');doSubmit()}
 
-window.addEventListener('beforeunload',secureCleanup);
+// ═══ 사용방법 애니메이션 (영상 파일 없이 화면 안에서 재생) ═══
+const HT_STEPS=[
+  {k:0,el:'ht-id',cap:'① <b>사번과 이름</b>을 입력해요',dur:2600},
+  {k:1,el:'ht-t1',cap:'② <b>병원명</b>을 쓰고 <b>최초신청 / 재진</b>을 골라요',dur:2800},
+  {k:2,el:'ht-b1',cap:'③ <b>📷 첨부</b>를 눌러 서류를 찍어요<small>진단서 → 영수증(약제비 포함) → 세부내역서</small>',dur:3200},
+  {k:3,el:null,warn:1,key:1,cap:'작성 중에는 <b>창을 닫지 마세요</b><small>30분 동안 안 쓰면 자동으로 지워져요</small>',dur:4600},
+  {k:3,el:'ht-add',key:1,cap:'④ 병원이 여러 곳이면 <b>+ 병원 추가</b><small>나눠 보내지 말고 한 번에!</small>',dur:4200},
+  {k:4,el:'ht-b2',key:1,cap:'새 병원 칸에 같은 방법으로 서류를 찍어요',dur:3200},
+  {k:5,el:'ht-addm',key:1,cap:'⑤ 가족 서류도 있으면 <b>+ 가족 추가</b><small>배우자·자녀 서류도 같은 방법으로, 한 번에!</small>',dur:4400},
+  {k:6,el:'ht-send',cap:'⑥ <b>[전송]은 한 번만</b> 누르면 끝<small>본인·가족, 모든 병원 서류가 PDF 1개로 보내져요</small>',dur:3200},
+  {k:7,el:null,cap:'✅ 완료! <b>SHRS 의료비 신청</b>도 꼭 해주세요',dur:3600},
+];
+let htStep=0,htTimers=[],htPaused=false;
+function htClear(){htTimers.forEach(clearTimeout);htTimers=[]}
+function htLater(fn,ms){htTimers.push(setTimeout(fn,ms))}
+function htState(k){
+  const g=id=>document.getElementById(id),fill=(id,on,t,ph)=>{const e=g(id);e.textContent=on?t:ph;e.classList.toggle('fill',on)};
+  fill('ht-id',k>=1,'123456','사번');fill('ht-nm',k>=1,'홍길동','이름');
+  fill('ht-h1',k>=2,'🏥 A내과','🏥 병원명');g('ht-t1').classList.toggle('on',k>=2);
+  const d=document.querySelectorAll('#ht-phone .ht-hosp:not(.h2) .ht-doc em');d.forEach((e,i)=>{e.style.transitionDelay=(k===3?i*350:0)+'ms';e.classList.toggle('on',k>=3)});
+  g('ht-add').classList.toggle('hot',k===3);
+  g('ht-hosp2').classList.toggle('open',k>=4);
+  fill('ht-h2',k>=5,'🏥 B정형외과','🏥 병원명');g('ht-t2').classList.toggle('on',k>=5);
+  const d2=document.querySelectorAll('#ht-hosp2 .ht-doc em');d2.forEach((e,i)=>{e.style.transitionDelay=(k===5?i*300:0)+'ms';e.classList.toggle('on',k>=5&&i>0)});
+  g('ht-addm').classList.toggle('hot',k===5);
+  g('ht-m2').classList.toggle('open',k>=6);
+  fill('ht-h3',k>=6,'🏥 C치과','🏥 병원명');g('ht-t3').classList.toggle('on',k>=6);
+  document.querySelectorAll('#ht-m2 .ht-doc em').forEach((e,i)=>{e.style.transitionDelay=(k===6?900+i*300:0)+'ms';e.classList.toggle('on',k>=6)});
+  g('ht-send').classList.toggle('ready',k>=3);
+  g('ht-done').classList.toggle('on',k>=7);
+}
+function htScrollTo(s){
+  const sc=document.getElementById('ht-scroll'),ph=document.getElementById('ht-phone');
+  const max=Math.max(0,sc.scrollHeight-ph.clientHeight);
+  let y=0;
+  if(s===4)y=Math.min(max,Math.max(0,document.getElementById('ht-hosp2').offsetTop-70));
+  if(s===5)y=Math.min(max,Math.max(0,document.getElementById('ht-addm').offsetTop-ph.clientHeight+70));
+  if(s>=6)y=max;
+  sc.style.transform='translateY('+(-y)+'px)';
+}
+function htFinger(id){
+  const f=document.getElementById('ht-finger');
+  if(!id){f.style.opacity=0;return}
+  const ph=document.getElementById('ht-phone').getBoundingClientRect(),r=document.getElementById(id).getBoundingClientRect();
+  f.style.opacity=1;f.style.transform='translate('+(r.left-ph.left+r.width/2-12)+'px,'+(r.top-ph.top+r.height/2-2)+'px)';
+}
+function howtoShow(s){
+  htClear();htStep=(s+HT_STEPS.length)%HT_STEPS.length;
+  const st=HT_STEPS[htStep],cap=document.getElementById('ht-cap');
+  cap.innerHTML='<div>'+st.cap+'</div>';cap.classList.toggle('key',!!st.key);
+  document.getElementById('ht-dots').innerHTML=HT_STEPS.map((_,i)=>'<i'+(i===htStep?' class="on"':'')+'></i>').join('');
+  const k=st.k;
+  document.getElementById('ht-warn').classList.toggle('on',!!st.warn);
+  htState(k);htScrollTo(k);
+  if(st.el){
+    htLater(()=>htFinger(st.el),k>=4?700:250);
+    htLater(()=>{const f=document.getElementById('ht-finger');f.classList.remove('tap');void f.offsetWidth;f.classList.add('tap');htState(k+1);if(k===3)htLater(()=>htScrollTo(4),350);if(k===5)htLater(()=>htScrollTo(6),750);if(k===6)htLater(()=>htFinger(null),350)},k>=4?1500:1100);
+  }else htFinger(null);
+  if(!htPaused)htLater(()=>howtoShow(htStep+1),st.dur);
+}
+function howtoGo(d){howtoShow(htStep+d)}
+function howtoPause(){htPaused=!htPaused;document.getElementById('ht-pause').textContent=htPaused?'▶ 재생':'⏸ 멈춤';if(htPaused)htClear();else howtoShow(htStep)}
+function howtoTab(t){
+  const app=t!=='home';
+  document.getElementById('ht-t-app').classList.toggle('on',app);document.getElementById('ht-t-home').classList.toggle('on',!app);
+  document.getElementById('ht-p-app').classList.toggle('hidden',!app);document.getElementById('ht-p-home').classList.toggle('hidden',app);
+  if(app){htPaused=false;document.getElementById('ht-pause').textContent='⏸ 멈춤';howtoShow(0)}
+  else{htClear();try{const u=navigator.userAgent,k=/iPhone|iPad|iPod/i.test(u)?'hs-ios':/SamsungBrowser/i.test(u)?'hs-samsung':/Android/i.test(u)?'hs-chrome':'';['hs-chrome','hs-samsung','hs-ios'].forEach(i=>{document.getElementById(i).open=(i===k)})}catch(_){}}
+}
+function openHowto(t){document.getElementById('howto-popup').classList.remove('hidden');howtoTab(t||'app')}
+function closeHowto(){htClear();document.getElementById('howto-popup').classList.add('hidden')}
+
+// ═══ 나눠 보내기 방지 안내 ═══
+// 폰에 저장하지 않음: 이 화면이 열려 있는 동안만 기억 (새로고침·창 닫기 시 사라짐)
+let sentThisVisit=0,resendNoted=false,resendPick=null;
+function closeResend(){document.getElementById('resend-popup').classList.add('hidden');const a=resendPick;resendPick=null;if(a)openSourcePicker(a[0],a[1],a[2])}
+function nudgeAddHospital(){
+  const b=[...document.querySelectorAll('#members-container .add-btn, .add-btn')].filter(x=>!x.classList.contains('add-member-btn'));
+  if(!b.length)return;
+  b[0].scrollIntoView({behavior:'smooth',block:'center'});
+  b.forEach(x=>{x.classList.remove('nudge');void x.offsetWidth;x.classList.add('nudge')});
+  showToast('여기 <b>+ 병원 추가</b>를 눌러 다른 병원 서류를 더해주세요',3500);
+  setTimeout(()=>b.forEach(x=>x.classList.remove('nudge')),4500);
+}
+// 상단 영역 높이에 맞춰 사번·이름 칸 위치 조정 (버튼이 두 줄이 되어도 가려지지 않게)
+function syncHeaderHeight(){const h=document.querySelector('#main-screen .header'),b=document.querySelector('#main-screen .sticky-bar');if(h&&b&&h.offsetHeight)b.style.top=h.offsetHeight+'px'}
+window.addEventListener('resize',syncHeaderHeight);
+
+// ═══ 뒤로가기·새로고침 보호 (폰에 저장하지 않으므로, 실수로 나가면 사진이 모두 사라짐) ═══
+let backGuardOn=false,leavingNow=false;
+function isOpen(id){const e=document.getElementById(id);return !!e&&!e.classList.contains('hidden')}
+function hasDraft(){
+  if(!isOpen('main-screen')||isOpen('complete-popup'))return false;
+  try{return submitBusy||collectAllImages().length>0}catch(_){return false}
+}
+function armBackGuard(){if(backGuardOn)return;try{history.pushState({mediscan:1},'');backGuardOn=true}catch(_){}}
+function closeLeave(){document.getElementById('leave-popup').classList.add('hidden')}
+function leaveNow(){leavingNow=true;closeLeave();secureCleanup();backGuardOn=false;try{history.go(-2)}catch(_){}setTimeout(()=>{try{location.reload()}catch(_){}},400)}
+window.addEventListener('popstate',()=>{
+  if(leavingNow||!backGuardOn)return;
+  backGuardOn=false;
+  // 열려 있는 창이 있으면 그 창만 닫음
+  if(isOpen('howto-popup')){armBackGuard();closeHowto();return}
+  if(isOpen('leave-popup')){closeLeave();armBackGuard();return}
+  if(isOpen('cam-popup')){armBackGuard();closeGuideCamera();return}
+  if(isOpen('guide-popup')){armBackGuard();closeGuide();return}
+  if(isOpen('source-popup')){armBackGuard();closeSourcePicker();return}
+  if(submitBusy){armBackGuard();showToast('전송 중이에요 · 잠시만 기다려주세요',2500);return}
+  if(['resend-popup','crop-popup','review-popup','more-popup','family-popup','order-popup','shrs-popup','confirm-popup','storage-popup','fail-popup','complete-popup','privacy-popup'].some(isOpen)){armBackGuard();return}
+  if(hasDraft()){
+    armBackGuard();
+    document.getElementById('leave-count').textContent=collectAllImages().length+'장';
+    document.getElementById('leave-popup').classList.remove('hidden');
+    return;
+  }
+  history.back(); // 작성한 내용이 없으면 그대로 나감
+});
+window.addEventListener('beforeunload',e=>{
+  if(!leavingNow&&hasDraft()){e.preventDefault();e.returnValue='';return ''} // 새로고침·창 닫기 전 확인
+  secureCleanup();
+});
+window.addEventListener('pagehide',e=>{if(!e.persisted)secureCleanup()});
 
 // ═══ 입력 필드 이벤트 - 한글 IME 호환 + 다중 이벤트로 견고하게 ═══
 function setupInputHandlers(){
